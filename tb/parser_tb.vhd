@@ -1,10 +1,10 @@
-library ieee;
-use ieee.std_logic_1164.ALL;
-use ieee.numeric_std.ALL;
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 use std.textio.ALL;
 
 entity parser_tb is 
-end parser_tb
+end parser_tb;
 
 architecture sim of parser_tb is
 ----------------------------------------------------------
@@ -26,7 +26,7 @@ architecture sim of parser_tb is
 ----------------------------------------------------------
 --Constant variables
 ----------------------------------------------------------
-	constant cBUS_WIDTH : natural := 8
+	constant cBUS_WIDTH : natural := 8;
 
 
 ----------------------------------------------------------
@@ -34,16 +34,14 @@ architecture sim of parser_tb is
 ----------------------------------------------------------
 	signal CLK			: STD_LOGIC;
 	signal RESETn		: STD_LOGIC;
-	signal INPUT		: STD_LOGIC_VECTOR(31 downto 0);
-	signal vec_stream	: STD_LOGIC_VECTOR(31 downto 0);
+	signal INPUT		: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
+	signal vec_stream	: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
 
 
 ----------------------------------------------------------
---File handling variables
+--File handling
 ----------------------------------------------------------
 	file test_vector 	: text open read_mode is "file.txt";
-	variable row		: line;
-	variable row_cnt	: integer := 0;
 
 
 begin
@@ -51,10 +49,10 @@ begin
 --Instantiate and port map UUT
 ----------------------------------------------------------
 	uut: parser_top
-	port map(
-		CLK=>CLK;
-		RESETn=>RESETn
-	);
+	generic map	(BUS_WIDTH=>cBuS_WIDTH)
+	port map		(CLK=>CLK,
+					RESETn=>RESETn,
+					INPUT=>INPUT);
 
 
 ----------------------------------------------------------
@@ -77,6 +75,7 @@ begin
 		RESETn <= '0';
 		wait for 10ns;
 		RESETn <= '1';
+		wait;
 	end process;
 
 
@@ -84,19 +83,18 @@ begin
 --Read line from 'test_vector' file and pass it to 'row' variable
 ----------------------------------------------------------
 	read_line: process(CLK)
+	variable row		: line;
+	variable row_cnt	: natural := 0;
 	begin
 		if rising_edge(CLK) then
-			if RESETn == '0' then
-				input_data <= (others => '0')
-			else
-				if not(endfile(test_vector) then
-					row_cnt := row_cnt + 1
-					read_line(test_vector, row)
-				end if;
+			if RESETn = '0' then
+				vec_stream <= (others => '0');
+			elsif not(endfile(test_vector)) then
+				row_cnt := row_cnt + 1;
+				readline(test_vector, row);
 			end if;
 		end if;
 	end process;
 			
-	
-	
+end sim;
 	
