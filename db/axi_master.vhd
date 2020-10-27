@@ -25,7 +25,7 @@ signal strb, keep : STD_LOGIC_VECTOR(BUS_WIDTH-1 downto 0);
 
 begin
 
-transfer: process(CLK)
+transfer: process(ACLK)
 begin
 	
 	
@@ -35,7 +35,7 @@ end process;
 TDATA 	<= data;
 TVALID 	<= valid;
 TSTRB 	<= strb;
-TKEEP 	<= keep
+TKEEP 	<= keep;
 
 end rtl;
 

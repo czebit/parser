@@ -40,7 +40,7 @@ begin
 			tail <= 0;
 			elem_cnt <= 0;
 		else
-			if READ_EN = '1' and WRITE_EN = '1' and full_i = '1' then
+			if READ_EN = '1' and WRITE_EN = '1' then
 				if head = (BUFF_DEPTH-1) then
 					head <= 0;
 				else
@@ -73,6 +73,7 @@ begin
 	end if;
 end process;
 
+
 comb_flags: process(elem_cnt)
 begin
 	case elem_cnt is
@@ -88,19 +89,15 @@ begin
 	end case;
 end process;
 
-read_mem: process(CLK)
-begin
-	if rising_edge(CLK) then
-		DATA_OUT 	<= fifo(tail);
-		fifo(head) 	<= DATA_IN;
-	end if;
-end process;
+DATA_OUT 	<= fifo(tail);
+fifo(head) 	<= DATA_IN;
 
-EMPTY	<= empty_i;
-FULL	<= full_i;
-LOAD_CNT <= elem_cnt;
-HEAD_D <= head;
-TAIL_D <= tail;
+EMPTY			<= empty_i;
+FULL			<= full_i;
+
+LOAD_CNT 	<= elem_cnt;
+HEAD_D 		<= head;
+TAIL_D 		<= tail;
 	
 end rtl;
 

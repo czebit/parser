@@ -88,43 +88,83 @@ begin
 	rst_proc: process
 	begin
 		RESETn <= '0';
-		wait for 15 ns;
+		wait for 5 ns;
 		RESETn <= '1';
 		wait;
 	end process;
-
-	
+		
 ----------------------------------------------------------
---READ_EN WRITE_EN stimulus
-----------------------------------------------------------
-	en_proc: process
+--write stimulus
+----------------------------------------------------------	
+	data_in_proc: process
 	begin
 		WRITE_EN <= '0';
-		READ_EN 	<= '0';
-		wait for 20 ns;
-		WRITE_EN <= '1';
-		wait for 20 ns;
-		READ_EN <= '1';
-		wait for 30 ns;
-		WRITE_EN <= '0';
-		wait for 4 ns;
-		READ_EN <= '0';
 		wait for 10 ns;
-		READ_EN <= '1';
-		wait for 20 ns;
-		READ_EN <= '0';
+		
+		for i in 0 to 5 loop
+			wait until rising_edge(CLK);
+			WRITE_EN <= '1';
+			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
+		end loop;
+		
+		WRITE_EN <= '0';
+		wait for 10 ns;
+		
+		while (FULL = '0') loop
+			wait until rising_edge(CLK);
+			WRITE_EN <= '1';
+			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
+		end loop;
+		
+		WRITE_EN <= '0';
+		wait for 5 ns;
+		
+		for i in 0 to 15 loop
+			wait until rising_edge(CLK);
+			WRITE_EN <= '1';
+			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
+		end loop;
+		
+		WRITE_EN <= '0';
+		wait for 15 ns;
+		
+		for i in 0 to 20 loop
+			wait until rising_edge(CLK);
+			WRITE_EN <= '1';
+			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
+		end loop;
+		
 		wait;
 	end process;
 		
+
 ----------------------------------------------------------
---DATA_IN stimulus
+--read stimulus
 ----------------------------------------------------------	
-	data_proc: process(CLK)
+	data_out_proc: process
 	begin
-		if falling_edge(CLK) then
-			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
-		end if;
-	end process;
+		READ_EN <= '0';
+		wait until FULL = '1';
 		
-end sim;
+		READ_EN <= '1';
+		wait until EMPTY = '1';
+		
+		READ_EN <= '0';
+		wait until FULL = '1';
+		
+		READ_EN <= '1';
+		wait until EMPTY = '1';
+		
+		READ_EN <= '0';
+		wait for 20 ns;
+		
+		READ_EN <= '1';
+		wait for 30 ns;
+		
+		READ_EN <= '0';
+		wait for 20 ns;
+		
+		wait;
+	end process;
 	
+end sim;
