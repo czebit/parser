@@ -1,0 +1,1 @@
+set_global_assignment NUM_PARALLEL_PROCESSORS 8

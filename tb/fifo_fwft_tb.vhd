@@ -23,7 +23,9 @@ component fifo_fwft is
 			FULL			: out STD_LOGIC;
 			LOAD_CNT		: out NATURAL;
 			HEAD_D		: out NATURAL;
-			TAIL_D		: out NATURAL);
+			TAIL_D		: out NATURAL;
+			NEXT_EMPTY	: out STD_LOGIC;
+			NEXT_FULL	: out STD_LOGIC);
 end component;
 ----------------------------------------------------------
 
@@ -48,6 +50,14 @@ end component;
 	signal LOAD_CNT	: NATURAL;
 	signal HEAD_D		: NATURAL;
 	signal TAIL_D		: NATURAL;
+	signal NEXT_FULL	: STD_LOGIC;
+	signal NEXT_EMPTY	: STD_LOGIC;
+	
+	subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
+	type 		mem	is array(100 downto 0) of word;
+	
+	signal data_w, data_r : mem := (others=>(others=> '0'));
+	signal cnt_w, cnt_r : INTEGER range 100 downto 0 := 0;
 ----------------------------------------------------------
 	
 begin
@@ -67,7 +77,9 @@ begin
 					FULL=>FULL,
 					LOAD_CNT=>LOAD_CNT,
 					HEAD_D=>HEAD_D,
-					TAIL_D=>TAIL_D);
+					TAIL_D=>TAIL_D,
+					NEXT_EMPTY=>NEXT_EMPTY,
+					NEXT_FULL=>NEXT_FULL);
 					
 					
 ----------------------------------------------------------
@@ -92,79 +104,66 @@ begin
 		RESETn <= '1';
 		wait;
 	end process;
-		
+
 ----------------------------------------------------------
 --write stimulus
 ----------------------------------------------------------	
 	data_in_proc: process
 	begin
-		WRITE_EN <= '0';
-		wait for 10 ns;
-		
-		for i in 0 to 5 loop
+		for i in 0 to 7 loop
+			WRITE_EN <= '0';
+			wait for 15 ns;
 			wait until rising_edge(CLK);
-			WRITE_EN <= '1';
-			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
-		end loop;
-		
-		WRITE_EN <= '0';
-		wait for 10 ns;
-		
-		while (FULL = '0') loop
-			wait until rising_edge(CLK);
-			WRITE_EN <= '1';
-			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
-		end loop;
-		
-		WRITE_EN <= '0';
-		wait for 5 ns;
-		
-		for i in 0 to 15 loop
-			wait until rising_edge(CLK);
-			WRITE_EN <= '1';
-			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
-		end loop;
-		
-		WRITE_EN <= '0';
-		wait for 15 ns;
-		
-		for i in 0 to 20 loop
-			wait until rising_edge(CLK);
-			WRITE_EN <= '1';
-			DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
+			while (NEXT_FULL = '0') loop
+				WRITE_EN <= '1';
+				DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
+				data_w(cnt_w) <= DATA_IN;
+				cnt_w <= cnt_w + 1;
+				wait until rising_edge(CLK);
+			end loop;
 		end loop;
 		
 		wait;
 	end process;
-		
 
 ----------------------------------------------------------
 --read stimulus
 ----------------------------------------------------------	
 	data_out_proc: process
 	begin
+	for i in 0 to 7 loop
 		READ_EN <= '0';
 		wait until FULL = '1';
-		
-		READ_EN <= '1';
-		wait until EMPTY = '1';
+		wait until rising_edge(CLK);
+		while (NEXT_EMPTY = '0') loop
+			READ_EN <= '1';
+			wait until rising_edge(CLK);
+		end loop;
 		
 		READ_EN <= '0';
 		wait until FULL = '1';
+		wait until rising_edge(CLK);
+		while (NEXT_EMPTY = '0') loop
+			READ_EN <= '1';
+			wait until rising_edge(CLK);
+		end loop;
 		
-		READ_EN <= '1';
-		wait until EMPTY = '1';
-		
-		READ_EN <= '0';
-		wait for 20 ns;
-		
-		READ_EN <= '1';
-		wait for 30 ns;
-		
-		READ_EN <= '0';
-		wait for 20 ns;
-		
-		wait;
+	end loop;
+	wait;
 	end process;
-	
+
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if READ_EN = '1' then
+			data_r(cnt_r) <= DATA_OUT;
+			if cnt_r > 1 then
+				assert(data_r(cnt_r-1) = data_w(cnt_r-1));
+			end if;
+			cnt_r <= cnt_r + 1;
+		end if;
+	end if;
+end process;
+
 end sim;
