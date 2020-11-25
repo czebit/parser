@@ -31,7 +31,7 @@ begin
 	AXI_MASTER: entity work.axi_st_master(rtl)
 					generic map(AXI_M_BUS_WIDTH=>AXI_BUS_WIDTH,
 									AXI_M_BURST_SIZE=>AXI_BURST_SIZE)
-								
+
 					port map(AXI_M_ACLK=>AXI_ACLK,
 								AXI_M_ARESETn=>AXI_ARESETn,
 								AXI_M_TDATA=>tdata_i,

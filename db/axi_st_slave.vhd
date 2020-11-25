@@ -35,13 +35,13 @@ begin
 input_register: process(AXI_S_ACLK)
 begin
 	if rising_edge(AXI_S_ACLK) then
-		if not(AXI_S_ARESETn) then
-			tdata_i <= (others=>'0');
-			oready_i <= '0';
-		else
+		--if not(AXI_S_ARESETn) then
+			--tdata_i <= (others=>'0');
+			--oready_i <= '0';
+		--else
 			tdata_i <= AXI_S_TDATA;
 			oready_i <= AXI_S_OREADY;
-		end if;
+		--end if;
 	end if;
 end process;
 
@@ -144,7 +144,8 @@ begin
 				AXI_S_DATA_OUT <= AXI_S_TDATA;
 			when others=>
 				AXI_S_OVALID <= '0';
-				AXI_S_DATA_OUT <= (others=>'0');
+				AXI_S_DATA_OUT <= AXI_S_TDATA;
+				--AXI_S_DATA_OUT <= (others=>'0');
 			end case;
 		end if;
 	end if;

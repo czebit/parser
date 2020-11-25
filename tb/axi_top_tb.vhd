@@ -20,9 +20,6 @@ signal AXI_ACLK, AXI_ARESETn	:  STD_LOGIC;
 signal AXI_IVALID, AXI_IREADY 		: STD_LOGIC;
 signal AXI_DATA_IN 		 		: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
 
---signal d_tvalid, d_tready 	: STD_LOGIC;
---signal d_tdata : STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
-
 signal AXI_OVALID, AXI_OREADY 		: STD_LOGIC;
 signal AXI_DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
 
@@ -53,11 +50,7 @@ begin
 					 AXI_OREADY=>AXI_OREADY,
 					 AXI_BIT_CNT_IN=>AXI_BIT_CNT_IN,
 					 AXI_BIT_CNT_OUT=>AXI_BIT_CNT_OUT);
-					 /*
-					 d_tdata=>d_tdata,
-					 d_tvalid=>d_tvalid,
-					 d_tready=>d_tready);
-					*/
+
 ----------------------------------------------------------
 --Clock generation
 ----------------------------------------------------------

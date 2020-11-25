@@ -18,10 +18,7 @@ generic(	BUS_WIDTH 	: natural := 8;
 			DATA_OUT 	: out STD_LOGIC_VECTOR(BUS_WIDTH*8-1 downto 0);
 			OREADY 		: in STD_LOGIC;
 			BIT_CNT_IN	: out INTEGER range BURST_SIZE downto 0;
-			BIT_CNT_OUT : out INTEGER range BURST_SIZE downto 0;
-			head_d,tail_d,elem_cnt_d : out integer;
-			write_en_d, read_en_d : out STD_LOGIC;
-			data_d : out STD_LOGIC_VECTOR(BUS_WIDTH*8-1 downto 0));
+			BIT_CNT_OUT : out INTEGER range BURST_SIZE downto 0);
 			
 end axi_fifo_top;
 
@@ -60,12 +57,6 @@ begin
 								FIFO_WRITE_EN=>axi_out_valid_i,
 								FIFO_READ_EN=>OREADY,
 								FIFO_NEXT_EMPTY=>BUFF_EMPTY,
-								FIFO_NEXT_FULL=>fifo_next_full_i,
-								head_d=>head_d,
-								tail_d=>tail_d,
-								elem_cnt_d=>elem_cnt_d,
-								write_en_d=>write_en_d,
-								read_en_d=>read_en_d,
-								data_d=>data_d);
+								FIFO_NEXT_FULL=>fifo_next_full_i);
 				
 end structural;

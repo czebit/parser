@@ -5,7 +5,6 @@ use IEEE.numeric_std.all;
 entity axi_fifo_top_tb is
 end axi_fifo_top_tb;
 
-
 architecture sim of axi_fifo_top_tb is
 ----------------------------------------------------------
 -----------------Constant variables-----------------------
@@ -30,10 +29,6 @@ signal BIT_CNT_IN, BIT_CNT_OUT : INTEGER;
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
-signal data_d : STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
-signal head_d, tail_d, elem_cnt_d : integer;
-signal write_en_d, read_en_d : STD_LOGIC;
-
 signal data_w, data_r : mem := (others=>(others=> '0'));
 signal cnt_w, cnt_r : INTEGER range 80 downto 0 := 0;
 
@@ -57,13 +52,8 @@ begin
 					 DATA_OUT=>DATA_OUT,
 					 OREADY=>OREADY,
 					 BIT_CNT_IN=>BIT_CNT_IN,
-					 BIT_CNT_OUT=>BIT_CNT_OUT,
-					 head_d=>head_d,
-					tail_d=>tail_d,
-					elem_cnt_d=>elem_cnt_d,
-					write_en_d=>write_en_d,
-					read_en_d=>read_en_d,
-					data_d=>data_d);
+					 BIT_CNT_OUT=>BIT_CNT_OUT);
+
 ----------------------------------------------------------
 --Clock generation
 ----------------------------------------------------------

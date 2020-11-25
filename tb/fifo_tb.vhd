@@ -55,12 +55,8 @@ begin
 					FIFO_READ_EN=>FIFO_READ_EN,
 					FIFO_EMPTY=>FIFO_EMPTY,
 					FIFO_NEXT_EMPTY=>FIFO_NEXT_EMPTY,
-					FIFO_NEXT_FULL=>FIFO_NEXT_FULL,
-					tail_d=>tail_d,
-					head_d=>head_d,
-					elem_cnt_d=>elem_cnt_d);
-					
-					
+					FIFO_NEXT_FULL=>FIFO_NEXT_FULL);
+
 ----------------------------------------------------------
 --Clock generation
 ----------------------------------------------------------
@@ -148,13 +144,14 @@ begin
 		end if;
 	end process;
 
+/*
 process(FIFO_CLK)
 begin
 	if rising_edge(FIFO_CLK) then
-		--read_en_i <= FIFO_READ_EN;
+		read_en_i <= FIFO_READ_EN;
 	end if;
 end process;
-
+*/
 read_en_i <= FIFO_READ_EN;
 
 process(FIFO_CLK)

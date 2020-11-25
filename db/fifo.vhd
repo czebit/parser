@@ -15,11 +15,7 @@ entity fifo is
 				FIFO_READ_EN		: in STD_LOGIC;
 				FIFO_EMPTY			: out STD_LOGIC;
 				FIFO_NEXT_FULL		: out STD_LOGIC;
-				FIFO_NEXT_EMPTY	: out STD_LOGIC;
-				FIFO_OVALID			: out STD_LOGIC;
-				head_d,tail_d,elem_cnt_d : out integer;
-				write_en_d, read_en_d : out STD_LOGIC;
-				data_d : out STD_LOGIC_VECTOR(FIFO_BUS_WIDTH*8-1 downto 0));
+				FIFO_NEXT_EMPTY	: out STD_LOGIC);
 				
 end fifo;
 
@@ -139,12 +135,12 @@ begin
 end process;
 */
 
-head_d <= head;
-tail_d <= tail;
-elem_cnt_d <= elem_cnt;
-data_d <= FIFO_DATA_IN;
-write_en_d <= FIFO_WRITE_EN;
-read_en_d <= FIFO_READ_EN;
+--head_d <= head;
+--tail_d <= tail;
+--elem_cnt_d <= elem_cnt;
+--data_d <= FIFO_DATA_IN;
+--write_en_d <= FIFO_WRITE_EN;
+--read_en_d <= FIFO_READ_EN;
 end rtl;
 
 	
