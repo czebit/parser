@@ -4,18 +4,18 @@ use IEEE.numeric_std.all;
 
 entity axi_fifo_top is
 
-generic(	BUS_WIDTH 	: natural := 8;
-			BURST_SIZE 	: natural := 8;
-			BUFF_DEPTH	: natural := 8);
+generic(	BUS_WIDTH 	: natural := 32;
+			BURST_SIZE 	: natural := 64;
+			BUFF_DEPTH	: natural := 16);
 
 
 	port(	ACLK			: in STD_LOGIC;
 			ARESETn		: in STD_LOGIC;
-			DATA_IN 		: in STD_LOGIC_VECTOR(BUS_WIDTH*8-1 downto 0);
+			DATA_IN 		: in STD_LOGIC_VECTOR(BUS_WIDTH-1 downto 0);
 			IVALID 		: in STD_LOGIC;
 			IREADY		: out STD_LOGIC;
 			BUFF_EMPTY	: out STD_LOGIC;
-			DATA_OUT 	: out STD_LOGIC_VECTOR(BUS_WIDTH*8-1 downto 0);
+			DATA_OUT 	: out STD_LOGIC_VECTOR(BUS_WIDTH-1 downto 0);
 			OREADY 		: in STD_LOGIC;
 			BIT_CNT_IN	: out INTEGER range BURST_SIZE downto 0;
 			BIT_CNT_OUT : out INTEGER range BURST_SIZE downto 0);
@@ -25,7 +25,7 @@ end axi_fifo_top;
 architecture structural of axi_fifo_top is
 
 signal last_i, fifo_next_full_i, inv_fifo_next_full_i, axi_out_valid_i : STD_LOGIC;
-signal data_i : STD_LOGIC_VECTOR(BUS_WIDTH*8-1 downto 0);
+signal data_i : STD_LOGIC_VECTOR(BUS_WIDTH-1 downto 0);
 
 begin
 	

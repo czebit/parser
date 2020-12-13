@@ -10,7 +10,7 @@ architecture sim of axi_slave_tb is
 ----------------------------------------------------------
 -----------------Constant variables-----------------------
 
-constant cBUS_WIDTH 	: NATURAL := 8;
+constant cBUS_WIDTH 	: NATURAL := 32;
 constant cBURST_SIZE : NATURAL := 8;
 ----------------------------------------------------------
 
@@ -23,12 +23,12 @@ signal AXI_S_TVALID	 : STD_LOGIC := '0';
 signal AXI_S_TREADY	 : STD_LOGIC := '0';
 signal AXI_S_TLAST	 : STD_LOGIC := '0';
 signal AXI_S_OVALID	 : STD_LOGIC;
-signal AXI_S_TDATA	 : STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0) := (others=>'0');
-signal AXI_S_DATA_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0) := (others=>'0');
+signal AXI_S_TDATA	 : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others=>'0');
+signal AXI_S_DATA_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others=>'0');
 signal AXI_S_OREADY 	 : STD_LOGIC;
-signal AXI_S_BIT_CNT  : integer range cBURST_SIZE -1 downto 0;
+signal AXI_S_BIT_CNT  : integer range cBURST_SIZE-1 downto 0;
 
-subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
+subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
 signal data_w, data_r : mem := (others=>(others=> '0'));

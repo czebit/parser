@@ -4,13 +4,13 @@ use IEEE.numeric_std.all;
 
 entity fifo is 
 
-	generic(	FIFO_BUS_WIDTH		: NATURAL := 8;
+	generic(	FIFO_BUS_WIDTH		: NATURAL := 32;
 				FIFO_BUFF_DEPTH	: NATURAL := 16);
 
 		port(	FIFO_RESETn			: in STD_LOGIC;
 				FIFO_CLK				: in STD_LOGIC;
-				FIFO_DATA_IN		: in STD_LOGIC_VECTOR(FIFO_BUS_WIDTH*8-1 downto 0);
-				FIFO_DATA_OUT		: out STD_LOGIC_VECTOR(FIFO_BUS_WIDTH*8-1 downto 0);
+				FIFO_DATA_IN		: in STD_LOGIC_VECTOR(FIFO_BUS_WIDTH -1 downto 0);
+				FIFO_DATA_OUT		: out STD_LOGIC_VECTOR(FIFO_BUS_WIDTH -1 downto 0);
 				FIFO_WRITE_EN		: in STD_LOGIC;
 				FIFO_READ_EN		: in STD_LOGIC;
 				FIFO_EMPTY			: out STD_LOGIC;
@@ -21,7 +21,7 @@ end fifo;
 
 architecture rtl of fifo is
 
-subtype 	word	is STD_LOGIC_VECTOR(FIFO_BUS_WIDTH*8-1 downto 0);
+subtype 	word	is STD_LOGIC_VECTOR(FIFO_BUS_WIDTH-1 downto 0);
 type 		mem	is array(FIFO_BUFF_DEPTH - 1 downto 0) of word;
 
 signal 	fifo : mem;
@@ -29,7 +29,7 @@ signal 	fifo : mem;
 signal	head, tail, elem_cnt : integer range FIFO_BUFF_DEPTH -1 downto 0;
 signal 	empty_i, full_i, write_en_i, read_en_i : STD_LOGIC;
 
-signal 	data_i : STD_LOGIC_VECTOR(FIFO_BUS_WIDTH*8-1 downto 0);
+signal 	data_i : STD_LOGIC_VECTOR(FIFO_BUS_WIDTH-1 downto 0);
 
 begin
 
@@ -107,40 +107,34 @@ begin
 	end case;
 end process;
 
+
 next_full_proc: process(elem_cnt)
 begin
-	if elem_cnt >= (FIFO_BUFF_DEPTH - 4) then
+	if elem_cnt >= (FIFO_BUFF_DEPTH - 5) then
 		FIFO_NEXT_FULL <= '1';
 	else
 		FIFO_NEXT_FULL <= '0';
 	end if;
 end process;
 
+
 FIFO_EMPTY <= empty_i;
 
-FIFO_DATA_OUT 	<= fifo(tail);
-fifo(head) <= FIFO_DATA_IN;
+--FIFO_DATA_OUT 	<= fifo(tail);
+--fifo(head) <= FIFO_DATA_IN;
 
-/*
+
 data_in_out: process(FIFO_CLK)
 begin
 	if rising_edge(FIFO_CLK) then
-		--if FIFO_READ_EN = '1' then
-			FIFO_DATA_OUT 	<= fifo(tail);
-		--end if;
-		--if FIFO_WRITE_EN = '1' then
+		FIFO_DATA_OUT <= fifo(tail);
+		if FIFO_WRITE_EN then
 			fifo(head) <= FIFO_DATA_IN;
-		--end if;
+		end if;
 	end if;
 end process;
-*/
 
---head_d <= head;
---tail_d <= tail;
---elem_cnt_d <= elem_cnt;
---data_d <= FIFO_DATA_IN;
---write_en_d <= FIFO_WRITE_EN;
---read_en_d <= FIFO_READ_EN;
+
 end rtl;
 
 	

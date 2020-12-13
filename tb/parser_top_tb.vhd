@@ -1,11 +1,13 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use std.textio.ALL;
 
-entity axi_fifo_top_tb is
-end axi_fifo_top_tb;
+entity parser_top_tb is 
+end parser_top_tb;
 
-architecture sim of axi_fifo_top_tb is
+architecture sim of parser_top_tb is
+
 ----------------------------------------------------------
 -----------------Constant variables-----------------------
 
@@ -21,7 +23,7 @@ signal ACLK, ARESETn	:  STD_LOGIC;
 signal IVALID, IREADY 		: STD_LOGIC;
 signal DATA_IN 		 		: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
-signal BUFF_EMPTY, OREADY 		: STD_LOGIC;
+signal BUFF_EMPTY, OREADY 	: STD_LOGIC;
 signal DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal BIT_CNT_IN, BIT_CNT_OUT : INTEGER;
@@ -31,14 +33,19 @@ type 		mem	is array(80 downto 0) of word;
 
 signal data_w, data_r : mem := (others=>(others=> '0'));
 signal cnt_w, cnt_r : INTEGER range 80 downto 0 := 0;
+signal vec_stream : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
+
 
 ----------------------------------------------------------
+--File handling
+----------------------------------------------------------
+	file test_file	: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames.txt";
 
 begin
 ----------------------------------------------------------
 --Instantiate and port map UUT
 ----------------------------------------------------------
-	uut: entity work.axi_fifo_top(structural)
+	uut: entity work.parser_top(structural)
 	generic map	(BUS_WIDTH=>cBUS_WIDTH,
 					 BURST_SIZE=>cBURST_SIZE,
 					 BUFF_DEPTH=>cBUFF_DEPTH)
@@ -53,6 +60,7 @@ begin
 					 OREADY=>OREADY,
 					 BIT_CNT_IN=>BIT_CNT_IN,
 					 BIT_CNT_OUT=>BIT_CNT_OUT);
+
 
 ----------------------------------------------------------
 --Clock generation
@@ -72,97 +80,31 @@ begin
 	rst_proc: process
 	begin
 		ARESETn <= '0';
-		wait for 8 ns;
+		wait for 10 ns;
 		ARESETn <= '1';
 		wait;
 	end process;
 
+
 ----------------------------------------------------------
---write stimulus
-----------------------------------------------------------	
-	data_in_proc: process(ACLK)
+--Read line from 'test_vector' file and pass it to 'row' variable
+----------------------------------------------------------
+	read_line: process(ACLK)
+	variable test_line : line;
+	variable line_cnt	 : natural := 0;
+	variable sulv : bit_vector(cBUS_WIDTH-1 downto 0);
 	begin
 		if rising_edge(ACLK) then
 			if not(ARESETn) then
-				DATA_IN <= (others=>'0');
-			else
-				DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(DATA_IN) + 1);
+				vec_stream <= (others => '0');
+			elsif not(endfile(test_file)) then
+				line_cnt := line_cnt + 1;
+				readline(test_file, test_line);
+				hread(test_line, sulv);
+				vec_stream <= To_StdLogicVector(sulv);
 			end if;
 		end if;
 	end process;
-	
-	cnt_w_proc: process(ACLK)
-	begin
-		if rising_edge(ACLK) then
-			if IREADY and IVALID then
-				cnt_w <= cnt_w + 1;
-			end if;
-		end if;
-	end process;
-	
-data_w(cnt_w) <= DATA_IN when IREADY = '1' and IVALID = '1';
-
-
-----------------------------------------------------------
---ivalid stimulus
-----------------------------------------------------------	
-	ivalid_proc: process(ACLK)
-	variable i : integer := 0;
-	begin
-		if rising_edge(ACLK) then
-			if not(ARESETn) then
-				IVALID <= '0';
-			else
-				if i = 15 then
-					i := 0;
-				else
-					i := i + 1;
-				end if;
-				if i >= 5 then
-					IVALID <= '1';
-				else
-					IVALID <= '0';
-				end if;
-			end if;
-		end if;
-	end process;
-
-----------------------------------------------------------
---read stimulus
-----------------------------------------------------------	
-	oready_proc: process(ACLK)
-	variable i : INTEGER := 0;
-	begin
-		if rising_edge(ACLK) then
-			if not(ARESETn) or BUFF_EMPTY then
-				OREADY <= '0';
-			else
-				if i = 19 then
-					i := 0;
-				else
-					i := i + 1;
-				end if;
-				if i >= 8 then
-					OREADY <= '1';
-				else
-					OREADY <= '0';
-				end if;
-			end if;
-		end if;
-	end process;
-	
-	
-	read_proc: process(ACLK)
-	begin
-		if rising_edge(ACLK) then
-			if OREADY then
-				data_r(cnt_r) <= DATA_OUT;
-				if cnt_r > 1 then
-					assert(data_r(cnt_r-1) = data_w(cnt_r-1));
-				end if;
-				cnt_r <= cnt_r + 1;
-			end if;
-		end if;
-	end process;
-
+			
 end sim;
+	

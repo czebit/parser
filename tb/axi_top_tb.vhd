@@ -18,14 +18,14 @@ constant cBURST_SIZE : NATURAL := 8;
 signal AXI_ACLK, AXI_ARESETn	:  STD_LOGIC;
 
 signal AXI_IVALID, AXI_IREADY 		: STD_LOGIC;
-signal AXI_DATA_IN 		 		: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
+signal AXI_DATA_IN 		 		: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal AXI_OVALID, AXI_OREADY 		: STD_LOGIC;
-signal AXI_DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
+signal AXI_DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal AXI_BIT_CNT_IN, AXI_BIT_CNT_OUT : INTEGER;
 
-subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
+subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
 signal data_w, data_r : mem := (others=>(others=> '0'));

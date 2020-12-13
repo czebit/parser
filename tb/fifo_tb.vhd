@@ -10,8 +10,8 @@ architecture sim of fifo_tb is
 ----------------------------------------------------------
 -----------------Constant variables-----------------------
 
-	constant cBUS_WIDTH 	: NATURAL := 8;
-	constant cBUFF_DEPTH : NATURAL := 8;
+	constant cBUS_WIDTH 	: NATURAL := 32;
+	constant cBUFF_DEPTH : NATURAL := 16;
 ----------------------------------------------------------
 
 ----------------------------------------------------------
@@ -20,10 +20,10 @@ architecture sim of fifo_tb is
 	signal FIFO_CLK, FIFO_RESETn	: STD_LOGIC;
 
 	signal FIFO_WRITE_EN	: STD_LOGIC;
-	signal FIFO_DATA_IN	: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0) := (others => '0');
+	signal FIFO_DATA_IN	: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others => '0');
 	
 	signal FIFO_READ_EN	: STD_LOGIC;
-	signal FIFO_DATA_OUT	: STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0) := (others => '0');
+	signal FIFO_DATA_OUT	: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others => '0');
 	
 	signal FIFO_EMPTY		: STD_LOGIC;
 	signal FIFO_NEXT_FULL	: STD_LOGIC;
@@ -31,7 +31,7 @@ architecture sim of fifo_tb is
 	
 	signal tail_d, head_d, elem_cnt_d : integer;
 	
-	subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH*8-1 downto 0);
+	subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 	type 		mem	is array(100 downto 0) of word;
 	
 	signal data_w, data_r : mem := (others=>(others=> '0'));

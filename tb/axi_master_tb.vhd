@@ -21,14 +21,14 @@ signal AXI_M_ARESETn	 : STD_LOGIC := '0';
 signal AXI_M_ACLK		 : STD_LOGIC := '0';
 signal AXI_M_IVALID 	 : STD_LOGIC := '0';
 signal AXI_M_IREADY   : STD_LOGIC := '0';
-signal AXI_M_DATA_IN	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH*8-1 downto 0) := (others=>'0');
+signal AXI_M_DATA_IN	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0) := (others=>'0');
 signal AXI_M_TVALID	 : STD_LOGIC := '0';
 signal AXI_M_TREADY	 : STD_LOGIC := '0';
-signal AXI_M_TDATA	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH*8-1 downto 0);
+signal AXI_M_TDATA	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 signal AXI_M_TLAST	 : STD_LOGIC := '0';
 signal AXI_M_BIT_CNT	 : INTEGER range cAXI_M_BURST_SIZE downto 0;
 
-subtype 	word	is STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH*8-1 downto 0);
+subtype 	word	is STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
 signal data_w, data_r : mem := (others=>(others=> '0'));

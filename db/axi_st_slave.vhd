@@ -4,17 +4,17 @@ use IEEE.numeric_std.all;
 
 entity axi_st_slave is 
 
-generic(	AXI_S_BUS_WIDTH : natural := 8;
+generic(	AXI_S_BUS_WIDTH : natural := 32;
 			AXI_S_BURST_SIZE : natural :=64);
 	
 	port(	AXI_S_ARESETn	 : in STD_LOGIC;
 			AXI_S_ACLK		 : in STD_LOGIC;
-			AXI_S_TDATA		 : in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH*8-1 downto 0);
+			AXI_S_TDATA		 : in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
 			AXI_S_TVALID	 : in STD_LOGIC;
 			AXI_S_TLAST		 : in STD_LOGIC;
 			AXI_S_TREADY	 : out STD_LOGIC;
 			AXI_S_OVALID	 : out STD_LOGIC;
-			AXI_S_DATA_OUT	 : out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH*8-1 downto 0);
+			AXI_S_DATA_OUT	 : out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
 			AXI_S_OREADY 	 : in STD_LOGIC;
 			AXI_S_BIT_CNT 	 : out integer range AXI_S_BURST_SIZE-1 downto 0);
 			
@@ -25,8 +25,8 @@ architecture rtl of axi_st_slave is
 
 type state_type is (IDLE, READY, GET_STREAM);
 signal state 	: state_type;
-signal bit_cnt : NATURAL range AXI_S_BURST_SIZE - 1 downto 0;
-signal tdata_i	: STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH*8-1 downto 0);
+signal bit_cnt : NATURAL range AXI_S_BURST_SIZE-1 downto 0;
+signal tdata_i	: STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
 signal tready_i, tvalid_i, oready_i : STD_LOGIC;
 
 begin
