@@ -38,14 +38,14 @@
 
 
 set_global_assignment -name FAMILY "Cyclone V"
-set_global_assignment -name DEVICE 5CGXFC9E7F35C8
+set_global_assignment -name DEVICE 5CGXFC9E6F35I7
 set_global_assignment -name TOP_LEVEL_ENTITY parser
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 20.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:19:36  LISTOPADA 13, 2020"
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
-set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
-set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP "-40"
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
@@ -75,7 +75,7 @@ set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id axi_slave_tb
 set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "200 ns" -section_id axi_slave_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME axi_slave_tb -section_id axi_slave_tb
 set_global_assignment -name FLOW_DISABLE_ASSEMBLER ON
-set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+set_global_assignment -name OPTIMIZATION_MODE "AGGRESSIVE PERFORMANCE"
 set_global_assignment -name VHDL_FILE tb/fifo_tb.vhd
 set_global_assignment -name VHDL_FILE db/fifo.vhd
 set_global_assignment -name VHDL_FILE db/axi_st_slave.vhd
@@ -113,4 +113,10 @@ set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_slave_tb.vhd -section_id 
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/fifo_tb.vhd -section_id fifo_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_top_tb.vhd -section_id axi_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_fifo_top_tb.vhd -section_id axi_fifo_top_tb
+set_global_assignment -name SEED 4
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name ALM_REGISTER_PACKING_EFFORT LOW
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE FASTEST
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

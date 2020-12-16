@@ -24,7 +24,7 @@ signal PDATA_OUT, PDATA_H_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 signal BYTE_CNT : integer range 65535 downto 0;
 signal PAYLOAD_SIZE	: STD_LOGIC_VECTOR(15 downto 0);
 signal REVISION_NUM	: STD_LOGIC_VECTOR(3 downto 0);
-signal CONCATENATE	: STD_LOGIC;
+signal CONCATENATE, ov_f	: STD_LOGIC;
 signal MESSAGE_TYPE	: STD_LOGIC_VECTOR(7 downto 0);
 signal ov : integer range 8 downto 0;
 signal pvalid_i, pready_i, plast_i, pwrite_en_i : STD_LOGIC := '0';
@@ -32,7 +32,7 @@ signal pdata_out_i : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(1000 downto 0) of word;
 signal data_w, data_r : mem := (others=>(others=> '0'));
-
+signal cyc : integer range 16383 downto 0;
 signal cnt_w, cnt_r : INTEGER range 1000 downto 0 := 0;
 signal state_d : integer range 0 to 5;
 ----------------------------------------------------------
@@ -66,7 +66,9 @@ begin
 					data_i_d=>data_i_d,
 					data_ii_d=>data_ii_d,
 					data_iii_d=>data_iii_d,
-					ov=>ov);
+					ov=>ov,
+					ov_f=>ov_f,
+					cyc=>cyc);
 
 ----------------------------------------------------------
 --Clock generation
