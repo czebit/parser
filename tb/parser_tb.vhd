@@ -18,23 +18,24 @@ constant cBUS_WIDTH 	: NATURAL := 32;
 ---------------Internal testbench signals-----------------
 signal CLK, RESETn	:  STD_LOGIC;
 
-signal PDATA_IN, data_i_d, data_ii_d, data_iii_d : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
+signal PDATA_IN, data_i_d, data_ii_d, data_iii_d, data_iiii_d : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 signal PREAD_EN, PWRITE_EN, PREADY, PLAST, PVALID	: STD_LOGIC;
 signal PDATA_OUT, PDATA_H_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 signal BYTE_CNT : integer range 65535 downto 0;
 signal PAYLOAD_SIZE	: STD_LOGIC_VECTOR(15 downto 0);
-signal REVISION_NUM	: STD_LOGIC_VECTOR(3 downto 0);
-signal CONCATENATE, ov_f	: STD_LOGIC;
 signal MESSAGE_TYPE	: STD_LOGIC_VECTOR(7 downto 0);
-signal ov : integer range 8 downto 0;
+signal ov, ov2, ov3 : integer range 3 downto 0;
+signal state_d, state_d2 : integer range 0 to 6;
+signal REVISION_NUM	: STD_LOGIC_VECTOR(3 downto 0);
+signal CONCATENATE, ov_f, ov_ff	: STD_LOGIC;
 signal pvalid_i, pready_i, plast_i, pwrite_en_i : STD_LOGIC := '0';
 signal pdata_out_i : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(1000 downto 0) of word;
 signal data_w, data_r : mem := (others=>(others=> '0'));
-signal cyc : integer range 16383 downto 0;
+
 signal cnt_w, cnt_r : INTEGER range 1000 downto 0 := 0;
-signal state_d : integer range 0 to 5;
+
 ----------------------------------------------------------
 --File handling
 ----------------------------------------------------------
@@ -63,12 +64,16 @@ begin
 					PAYLOAD_SIZE=>PAYLOAD_SIZE,
 					PVALID=>PVALID,
 					state_d=>state_d,
+					state_d2=>state_d2,
 					data_i_d=>data_i_d,
 					data_ii_d=>data_ii_d,
 					data_iii_d=>data_iii_d,
+					data_iiii_d=>data_iiii_d,
 					ov=>ov,
+					--ov2=>ov2,
+					--ov3=>ov3,
 					ov_f=>ov_f,
-					cyc=>cyc);
+					ov_ff=>ov_ff);
 
 ----------------------------------------------------------
 --Clock generation
@@ -106,7 +111,7 @@ begin
 		if not(RESETn) then
 			PDATA_IN <= (others => '0');
 		else
-			if PREADY and PWRITE_EN then
+			if PREADY and pwrite_en_i then
 				if not(endfile(test_file)) then
 					line_cnt := line_cnt + 1;
 					readline(test_file, test_line);
@@ -132,25 +137,25 @@ variable i : INTEGER := 0;
 begin
 	if rising_edge(CLK) then
 		if RESETn = '0' then
-			PWRITE_EN <= '0';
+			pwrite_en_i <= '0';
 			i := 0;
 		else
-			if i = 17 then
+			if i = 9 then
 				i := 0;
 			else
 				i := i + 1;
 			end if;
-			if i >= 3 then
-				PWRITE_EN <= '1';
+			
+			if i >= 1 then
+				pwrite_en_i <= '1';
 			else
-				PWRITE_EN <= '0';
+				pwrite_en_i <= '0';
 			end if;
 		end if;
 	end if;
 end process;
 */
-PWRITE_EN <= '1';
-	
+pwrite_en_i <= '1';
 cnt_w_proc: process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -175,7 +180,7 @@ begin
 			PREAD_EN <= '0';
 			i := 0;
 		else
-			if i = 40 then
+			if i = 15 then
 				i := 0;
 			else
 				i := i + 1;
@@ -190,6 +195,7 @@ begin
 end process;
 */
 PREAD_EN <= '1';
+
 plast_reg: process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -211,7 +217,7 @@ begin
 		pvalid_i <= PVALID;
 		pdata_out_i <= PDATA_OUT;
 		pready_i <= PREADY;
-		pwrite_en_i <= PWRITE_EN;
+		PWRITE_EN <= pwrite_en_i;
 	end if;
 end process;
 
