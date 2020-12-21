@@ -11,7 +11,6 @@ architecture sim of axi_slave_tb is
 -----------------Constant variables-----------------------
 
 constant cBUS_WIDTH 	: NATURAL := 32;
-constant cBURST_SIZE : NATURAL := 8;
 ----------------------------------------------------------
 
 ----------------------------------------------------------
@@ -26,7 +25,7 @@ signal AXI_S_OVALID	 : STD_LOGIC;
 signal AXI_S_TDATA	 : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others=>'0');
 signal AXI_S_DATA_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others=>'0');
 signal AXI_S_OREADY 	 : STD_LOGIC;
-signal AXI_S_BIT_CNT  : integer range cBURST_SIZE-1 downto 0;
+signal AXI_S_BIT_CNT  : integer range 65535 downto 0;
 
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
@@ -40,8 +39,7 @@ begin
 --Instantiate and port map UUT
 ----------------------------------------------------------
 	uut: entity work.axi_st_slave(rtl)
-	generic map	(AXI_S_BUS_WIDTH=>cBUS_WIDTH,
-					AXI_S_BURST_SIZE=>cBURST_SIZE)
+	generic map	(AXI_S_BUS_WIDTH=>cBUS_WIDTH)
 
 	port map		(AXI_S_TDATA=>AXI_S_TDATA,
 					AXI_S_DATA_OUT=>AXI_S_DATA_OUT,

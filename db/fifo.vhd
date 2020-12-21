@@ -41,7 +41,7 @@ begin
 			tail <= 0;
 			elem_cnt <= 0;
 		else
-			if FIFO_READ_EN and FIFO_WRITE_EN then
+			if FIFO_READ_EN = '1' and FIFO_WRITE_EN = '1' then
 				if head = (FIFO_BUFF_DEPTH-1) then
 					head <= 0;
 				else
@@ -53,7 +53,7 @@ begin
 					tail <= tail + 1;
 				end if;
 			else
-				if FIFO_READ_EN and not(empty_i) then
+				if FIFO_READ_EN = '1' and empty_i = '0' then
 					elem_cnt <= elem_cnt - 1;
 					if tail = (FIFO_BUFF_DEPTH-1) then
 						tail <= 0;
@@ -61,7 +61,7 @@ begin
 						tail <= tail + 1;
 					end if;
 				end if;
-				if FIFO_WRITE_EN and not(full_i) then
+				if FIFO_WRITE_EN = '1' and full_i = '0' then
 				elem_cnt <= elem_cnt + 1;
 					if head = (FIFO_BUFF_DEPTH-1) then
 						head <= 0;

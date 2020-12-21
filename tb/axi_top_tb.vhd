@@ -10,7 +10,6 @@ architecture sim of axi_top_tb is
 -----------------Constant variables-----------------------
 
 constant cBUS_WIDTH 	: NATURAL := 8;
-constant cBURST_SIZE : NATURAL := 8;
 ----------------------------------------------------------
 
 ----------------------------------------------------------
@@ -24,7 +23,7 @@ signal AXI_OVALID, AXI_OREADY 		: STD_LOGIC;
 signal AXI_DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal AXI_BIT_CNT_IN, AXI_BIT_CNT_OUT : INTEGER;
-
+signal AXI_LAST_IN : STD_LOGIC := '0';
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
@@ -37,8 +36,7 @@ begin
 --Instantiate and port map UUT
 ----------------------------------------------------------
 	uut: entity work.axi_top(structural)
-	generic map	(AXI_BUS_WIDTH=>cBUS_WIDTH,
-					 AXI_BURST_SIZE=>cBURST_SIZE)
+	generic map	(AXI_BUS_WIDTH=>cBUS_WIDTH)
 					
 	port map		(AXI_ACLK=>AXI_ACLK,
 					 AXI_ARESETn=>AXI_ARESETn,
@@ -49,7 +47,8 @@ begin
 					 AXI_DATA_OUT=>AXI_DATA_OUT,
 					 AXI_OREADY=>AXI_OREADY,
 					 AXI_BIT_CNT_IN=>AXI_BIT_CNT_IN,
-					 AXI_BIT_CNT_OUT=>AXI_BIT_CNT_OUT);
+					 AXI_BIT_CNT_OUT=>AXI_BIT_CNT_OUT,
+					 AXI_LAST_IN=>AXI_LAST_IN);
 
 ----------------------------------------------------------
 --Clock generation

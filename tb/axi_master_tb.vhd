@@ -11,7 +11,6 @@ architecture sim of axi_master_tb is
 -----------------Constant variables-----------------------
 
 constant cAXI_M_BUS_WIDTH 	: NATURAL := 8;
-constant cAXI_M_BURST_SIZE : NATURAL := 8;
 ----------------------------------------------------------
 
 ----------------------------------------------------------
@@ -26,8 +25,8 @@ signal AXI_M_TVALID	 : STD_LOGIC := '0';
 signal AXI_M_TREADY	 : STD_LOGIC := '0';
 signal AXI_M_TDATA	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 signal AXI_M_TLAST	 : STD_LOGIC := '0';
-signal AXI_M_BIT_CNT	 : INTEGER range cAXI_M_BURST_SIZE downto 0;
-
+signal AXI_M_BIT_CNT	 : INTEGER range 65535 downto 0;
+signal AXI_M_LAST_IN	 : STD_LOGIC := '0';
 subtype 	word	is STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
@@ -40,8 +39,7 @@ begin
 --Instantiate and port map UUT
 ----------------------------------------------------------
 	uut: entity work.axi_st_master(rtl)
-	generic map	(AXI_M_BUS_WIDTH=>cAXI_M_BUS_WIDTH,
-					AXI_M_BURST_SIZE=>cAXI_M_BURST_SIZE)
+	generic map	(AXI_M_BUS_WIDTH=>cAXI_M_BUS_WIDTH)
 					
 	port map		(AXI_M_TDATA=>AXI_M_TDATA,
 					AXI_M_TVALID=>AXI_M_TVALID,
@@ -52,7 +50,8 @@ begin
 					AXI_M_DATA_IN=>AXI_M_DATA_IN,
 					AXI_M_IVALID=>AXI_M_IVALID,
 					AXI_M_IREADY=>AXI_M_IREADY,
-					AXI_M_BIT_CNT=>AXI_M_BIT_CNT);
+					AXI_M_BIT_CNT=>AXI_M_BIT_CNT,
+					AXI_M_LAST_IN=>AXI_M_LAST_IN);
 					
 					
 ----------------------------------------------------------

@@ -9,45 +9,40 @@ end parser_tb;
 architecture sim of parser_tb is
 
 ----------------------------------------------------------
------------------Constant variables-----------------------
-
-constant cBUS_WIDTH 	: NATURAL := 32;
-----------------------------------------------------------
 
 ----------------------------------------------------------
 ---------------Internal testbench signals-----------------
 signal CLK, RESETn	:  STD_LOGIC;
 
-signal PDATA_IN, data_i_d, data_ii_d, data_iii_d, data_iiii_d : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
+signal data_iiii_d, data_iii_d, data_ii_d, data_i_d, PDATA_IN : STD_LOGIC_VECTOR(31 downto 0);
 signal PREAD_EN, PWRITE_EN, PREADY, PLAST, PVALID	: STD_LOGIC;
-signal PDATA_OUT, PDATA_H_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
+signal PDATA_OUT, PDATA_H_OUT : STD_LOGIC_VECTOR(31 downto 0);
 signal BYTE_CNT : integer range 65535 downto 0;
 signal PAYLOAD_SIZE	: STD_LOGIC_VECTOR(15 downto 0);
 signal MESSAGE_TYPE	: STD_LOGIC_VECTOR(7 downto 0);
-signal ov, ov2, ov3 : integer range 3 downto 0;
+
+signal ov : integer range 3 downto 0;
 signal state_d, state_d2 : integer range 0 to 6;
 signal REVISION_NUM	: STD_LOGIC_VECTOR(3 downto 0);
 signal CONCATENATE, ov_f, ov_ff	: STD_LOGIC;
 signal pvalid_i, pready_i, plast_i, pwrite_en_i : STD_LOGIC := '0';
-signal pdata_out_i : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
-subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
-type 		mem	is array(1000 downto 0) of word;
+signal pdata_out_i : STD_LOGIC_VECTOR(31 downto 0);
+subtype 	word	is STD_LOGIC_VECTOR(31 downto 0);
+type 		mem	is array(100 downto 0) of word;
 signal data_w, data_r : mem := (others=>(others=> '0'));
 
-signal cnt_w, cnt_r : INTEGER range 1000 downto 0 := 0;
+signal cnt_w, cnt_r : INTEGER range 100 downto 0 := 0;
 
 ----------------------------------------------------------
 --File handling
 ----------------------------------------------------------
-	file test_file	: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_3.txt";
+	file test_file	: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen2.txt";
 
 begin
 ----------------------------------------------------------
 --Instantiate and port map UUT
 ----------------------------------------------------------
-	uut: entity work.parser(rtl)
-	generic map	(PBUS_WIDTH=>cBUS_WIDTH)
-					
+	uut: entity work.parser(rtl)					
 	port map		(CLK=>CLK,
 					RESETn=>RESETn,
 					PDATA_IN=>PDATA_IN,
@@ -70,8 +65,6 @@ begin
 					data_iii_d=>data_iii_d,
 					data_iiii_d=>data_iiii_d,
 					ov=>ov,
-					--ov2=>ov2,
-					--ov3=>ov3,
 					ov_f=>ov_f,
 					ov_ff=>ov_ff);
 
@@ -105,7 +98,7 @@ end process;
 read_line: process(CLK)
 variable test_line : line;
 variable line_cnt	 : natural := 0;
-variable sulv : bit_vector(cBUS_WIDTH-1 downto 0);
+variable sulv : bit_vector(31 downto 0);
 begin
 	if rising_edge(CLK) then
 		if not(RESETn) then

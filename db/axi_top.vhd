@@ -4,8 +4,7 @@ use IEEE.numeric_std.all;
 
 entity axi_top is
 
-generic(	AXI_BUS_WIDTH 	: natural := 32;
-			AXI_BURST_SIZE : natural := 64);
+generic(	AXI_BUS_WIDTH 	: natural := 32);
 
 
 	port(	AXI_ACLK			: in STD_LOGIC;
@@ -16,9 +15,9 @@ generic(	AXI_BUS_WIDTH 	: natural := 32;
 			AXI_OVALID 		: out STD_LOGIC;
 			AXI_DATA_OUT 	: out STD_LOGIC_VECTOR(AXI_BUS_WIDTH-1 downto 0);
 			AXI_OREADY 		: in STD_LOGIC;
-			AXI_BIT_CNT_IN	: out INTEGER range AXI_BURST_SIZE downto 0;
-			AXI_BIT_CNT_OUT : out INTEGER range AXI_BURST_SIZE downto 0);
-		
+			AXI_BIT_CNT_IN	: out INTEGER range 65535 downto 0;
+			AXI_BIT_CNT_OUT : out INTEGER range 65535 downto 0;
+			AXI_LAST_IN		: in STD_LOGIC);
 end axi_top;
 
 architecture structural of axi_top is
@@ -29,8 +28,7 @@ signal tdata_i : STD_LOGIC_VECTOR(AXI_BUS_WIDTH-1 downto 0);
 begin
 
 	AXI_MASTER: entity work.axi_st_master(rtl)
-					generic map(AXI_M_BUS_WIDTH=>AXI_BUS_WIDTH,
-									AXI_M_BURST_SIZE=>AXI_BURST_SIZE)
+					generic map(AXI_M_BUS_WIDTH=>AXI_BUS_WIDTH)
 
 					port map(AXI_M_ACLK=>AXI_ACLK,
 								AXI_M_ARESETn=>AXI_ARESETn,
@@ -41,11 +39,11 @@ begin
 								AXI_M_DATA_IN=>AXI_DATA_IN,
 								AXI_M_IVALID=>AXI_IVALID,
 								AXI_M_IREADY=>AXI_IREADY,
-								AXI_M_BIT_CNT=>AXI_BIT_CNT_IN);
+								AXI_M_BIT_CNT=>AXI_BIT_CNT_IN,
+								AXI_M_LAST_IN=>AXI_LAST_IN);
 
 	AXI_SLAVE:	entity work.axi_st_slave(rtl)
-					generic map(AXI_S_BUS_WIDTH=>AXI_BUS_WIDTH,
-									AXI_S_BURST_SIZE=>AXI_BURST_SIZE)
+					generic map(AXI_S_BUS_WIDTH=>AXI_BUS_WIDTH)
 								
 					port map(AXI_S_ACLK=>AXI_ACLK,
 								AXI_S_ARESETn=>AXI_ARESETn,

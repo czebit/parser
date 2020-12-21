@@ -10,7 +10,6 @@ architecture sim of axi_fifo_top_tb is
 -----------------Constant variables-----------------------
 
 constant cBUS_WIDTH 	: NATURAL := 32;
-constant cBURST_SIZE : NATURAL := 64;
 constant cBUFF_DEPTH : NATURAL := 16;
 ----------------------------------------------------------
 
@@ -25,7 +24,7 @@ signal BUFF_EMPTY, OREADY 		: STD_LOGIC;
 signal DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal BIT_CNT_IN, BIT_CNT_OUT : INTEGER;
-
+signal LAST_IN : STD_LOGIC := '0';
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
@@ -40,7 +39,6 @@ begin
 ----------------------------------------------------------
 	uut: entity work.axi_fifo_top(structural)
 	generic map	(BUS_WIDTH=>cBUS_WIDTH,
-					 BURST_SIZE=>cBURST_SIZE,
 					 BUFF_DEPTH=>cBUFF_DEPTH)
 					
 	port map		(ACLK=>ACLK,
@@ -52,7 +50,8 @@ begin
 					 DATA_OUT=>DATA_OUT,
 					 OREADY=>OREADY,
 					 BIT_CNT_IN=>BIT_CNT_IN,
-					 BIT_CNT_OUT=>BIT_CNT_OUT);
+					 BIT_CNT_OUT=>BIT_CNT_OUT,
+					 LAST_IN=>LAST_IN);
 
 ----------------------------------------------------------
 --Clock generation

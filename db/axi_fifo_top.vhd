@@ -5,7 +5,6 @@ use IEEE.numeric_std.all;
 entity axi_fifo_top is
 
 generic(	BUS_WIDTH 	: natural := 32;
-			BURST_SIZE 	: natural := 64;
 			BUFF_DEPTH	: natural := 16);
 
 
@@ -17,8 +16,9 @@ generic(	BUS_WIDTH 	: natural := 32;
 			BUFF_EMPTY	: out STD_LOGIC;
 			DATA_OUT 	: out STD_LOGIC_VECTOR(BUS_WIDTH-1 downto 0);
 			OREADY 		: in STD_LOGIC;
-			BIT_CNT_IN	: out INTEGER range BURST_SIZE downto 0;
-			BIT_CNT_OUT : out INTEGER range BURST_SIZE downto 0);
+			BIT_CNT_IN	: out INTEGER range 65535 downto 0;
+			BIT_CNT_OUT : out INTEGER range 65535 downto 0;
+			LAST_IN		: in STD_LOGIC);
 			
 end axi_fifo_top;
 
@@ -32,8 +32,7 @@ begin
 	inv_fifo_next_full_i <= not(fifo_next_full_i);
 
 	AXI: entity work.axi_top(structural)
-			generic map(AXI_BUS_WIDTH=>BUS_WIDTH,
-							AXI_BURST_SIZE=>BURST_SIZE)
+			generic map(AXI_BUS_WIDTH=>BUS_WIDTH)
 							
 			port map (	AXI_ACLK=>ACLK,
 							AXI_ARESETn=>ARESETn,
@@ -44,7 +43,8 @@ begin
 							AXI_DATA_OUT=>data_i,
 							AXI_OREADY=>inv_fifo_next_full_i,
 							AXI_BIT_CNT_IN=>BIT_CNT_IN,
-							AXI_BIT_CNT_OUT=>BIT_CNT_OUT);
+							AXI_BIT_CNT_OUT=>BIT_CNT_OUT,
+							AXI_LAST_IN=>LAST_IN);
 
 	FIFO1: entity work.fifo(rtl)
 				generic map(FIFO_BUS_WIDTH=>BUS_WIDTH,
