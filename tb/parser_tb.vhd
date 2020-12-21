@@ -22,7 +22,7 @@ signal PAYLOAD_SIZE	: STD_LOGIC_VECTOR(15 downto 0);
 signal MESSAGE_TYPE	: STD_LOGIC_VECTOR(7 downto 0);
 
 signal ov : integer range 3 downto 0;
-signal state_d, state_d2 : integer range 0 to 6;
+signal state_d, state_d2 : integer range 0 to 7;
 signal REVISION_NUM	: STD_LOGIC_VECTOR(3 downto 0);
 signal CONCATENATE, ov_f, ov_ff	: STD_LOGIC;
 signal pvalid_i, pready_i, plast_i, pwrite_en_i : STD_LOGIC := '0';
@@ -120,11 +120,37 @@ begin
 	end if;
 end process;
 			
-			
+----------------------------------------------------------
+--read stimulus
+----------------------------------------------------------	
+
+read_proc: process(CLK)
+variable i : INTEGER := 0;
+begin
+	if rising_edge(CLK) then
+		if RESETn = '0' then
+			PREAD_EN <= '0';
+			i := 0;
+		else
+			if i = 14 then
+				i := 0;
+			else
+				i := i + 1;
+			end if;
+			if i >= 3 then
+				PREAD_EN <= '1';
+			else
+				PREAD_EN <= '0';
+			end if;
+		end if;
+	end if;
+end process;
+
+	
 ----------------------------------------------------------
 --write stimulus
 ----------------------------------------------------------
-/*
+
 write_en_proc: process(CLK)
 variable i : INTEGER := 0;
 begin
@@ -147,8 +173,10 @@ begin
 		end if;
 	end if;
 end process;
-*/
-pwrite_en_i <= '1';
+
+--PREAD_EN <= '1';	
+--pwrite_en_i <= '1';
+
 cnt_w_proc: process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -161,34 +189,6 @@ end process;
 data_w(cnt_w) <= PDATA_IN when pready_i = '1' and pwrite_en_i = '1';
 
 
-----------------------------------------------------------
---read stimulus
-----------------------------------------------------------	
-/*
-read_proc: process(CLK)
-variable i : INTEGER := 0;
-begin
-	if rising_edge(CLK) then
-		if RESETn = '0' then
-			PREAD_EN <= '0';
-			i := 0;
-		else
-			if i = 15 then
-				i := 0;
-			else
-				i := i + 1;
-			end if;
-			if i >= 3 then
-				PREAD_EN <= '1';
-			else
-				PREAD_EN <= '0';
-			end if;
-		end if;
-	end if;
-end process;
-*/
-PREAD_EN <= '1';
-
 plast_reg: process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -197,8 +197,6 @@ begin
 		else
 			if PVALID then
 				plast_i <= PLAST;
-			--else
-			--	plast_i <= '0';
 			end if;
 		end if;
 	end if;

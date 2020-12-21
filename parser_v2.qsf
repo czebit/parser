@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CGXFC9E6F35I7
-set_global_assignment -name TOP_LEVEL_ENTITY parser
+set_global_assignment -name TOP_LEVEL_ENTITY fifo_parser_fifo
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 20.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:19:36  LISTOPADA 13, 2020"
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.0 Lite Edition"
@@ -100,9 +100,31 @@ set_global_assignment -name EDA_TEST_BENCH_NAME parser_top_tb -section_id eda_si
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id parser_top_tb
 set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "500 ns" -section_id parser_top_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME parser_top_tb -section_id parser_top_tb
+set_global_assignment -name VHDL_FILE db/fifo.vhd
+set_global_assignment -name VHDL_FILE db/axi_st_slave.vhd
+set_global_assignment -name VHDL_FILE db/axi_st_master.vhd
+set_global_assignment -name VHDL_FILE db/parser.vhd
+set_global_assignment -name VHDL_FILE db/parser_top.vhd
+set_global_assignment -name VHDL_FILE db/axi_top.vhd
+set_global_assignment -name VHDL_FILE db/axi_fifo_top.vhd
+set_global_assignment -name VHDL_FILE db/fifo_parser_fifo.vhd
+set_global_assignment -name VHDL_FILE tb/parser_tb.vhd
+set_global_assignment -name VHDL_FILE tb/fifo_tb.vhd
+set_global_assignment -name VHDL_FILE tb/axi_master_tb.vhd
+set_global_assignment -name VHDL_FILE tb/axi_slave_tb.vhd
+set_global_assignment -name VHDL_FILE tb/axi_top_tb.vhd
+set_global_assignment -name VHDL_FILE tb/axi_fifo_top_tb.vhd
+set_global_assignment -name VHDL_FILE tb/parser_top_tb.vhd -hdl_version VHDL_2008
+set_global_assignment -name VHDL_FILE tb/fifo_parser_fifo_tb.vhd
+set_global_assignment -name SDC_FILE parser.sdc
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name EDA_TEST_BENCH_NAME fifo_parser_fifo_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fifo_parser_fifo_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "300 ns" -section_id fifo_parser_fifo_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME fifo_parser_fifo_tb -section_id fifo_parser_fifo_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/parser_tb.vhd -section_id parser_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_master_tb.vhd -section_id axi_master_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_slave_tb.vhd -section_id axi_slave_tb
@@ -110,19 +132,4 @@ set_global_assignment -name EDA_TEST_BENCH_FILE tb/fifo_tb.vhd -section_id fifo_
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_top_tb.vhd -section_id axi_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_fifo_top_tb.vhd -section_id axi_fifo_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/parser_top_tb.vhd -section_id parser_top_tb
-set_global_assignment -name VHDL_FILE tb/parser_top_tb.vhd -hdl_version VHDL_2008
-set_global_assignment -name VHDL_FILE db/fifo.vhd
-set_global_assignment -name VHDL_FILE db/axi_st_slave.vhd
-set_global_assignment -name VHDL_FILE db/axi_st_master.vhd
-set_global_assignment -name VHDL_FILE db/parser.vhd
-set_global_assignment -name VHDL_FILE db/parser_top.vhd
-set_global_assignment -name VHDL_FILE tb/fifo_tb.vhd
-set_global_assignment -name VHDL_FILE tb/parser_tb.vhd
-set_global_assignment -name VHDL_FILE tb/axi_master_tb.vhd
-set_global_assignment -name VHDL_FILE tb/axi_slave_tb.vhd
-set_global_assignment -name VHDL_FILE db/axi_top.vhd
-set_global_assignment -name VHDL_FILE tb/axi_top_tb.vhd
-set_global_assignment -name VHDL_FILE db/axi_fifo_top.vhd
-set_global_assignment -name VHDL_FILE tb/axi_fifo_top_tb.vhd
-set_global_assignment -name SDC_FILE parser.sdc
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name EDA_TEST_BENCH_FILE tb/fifo_parser_fifo_tb.vhd -section_id fifo_parser_fifo_tb

@@ -113,7 +113,7 @@ begin
 				else
 					i := i + 1;
 				end if;
-				if i >= 4 then
+				if i >= 3 then
 					FIFO_WRITE_EN <= '1';
 				else
 					FIFO_WRITE_EN <= '0';
@@ -130,12 +130,12 @@ begin
 			if not(FIFO_RESETn) or FIFO_NEXT_EMPTY then
 				FIFO_READ_EN <= '0';
 			else
-				if i = 11 then
+				if i = 15 then
 					i := 0;
 				else
 					i := i + 1;
 				end if;
-				if i >= 3 then
+				if i >= 4 then
 					FIFO_READ_EN <= '1';
 				else
 					FIFO_READ_EN <= '0';

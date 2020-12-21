@@ -3,14 +3,11 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 
 entity parser is 
-
-	generic(	PBUS_WIDTH	: NATURAL := 32);
-
 		port(	RESETn			: in STD_LOGIC;
 				CLK				: in STD_LOGIC;
-				PDATA_IN			: in STD_LOGIC_VECTOR(PBUS_WIDTH-1 downto 0);
-				PDATA_OUT		: out STD_LOGIC_VECTOR(PBUS_WIDTH-1 downto 0);
-				PDATA_H_OUT		: out STD_LOGIC_VECTOR(PBUS_WIDTH-1 downto 0);
+				PDATA_IN			: in STD_LOGIC_VECTOR(31 downto 0);
+				PDATA_OUT		: out STD_LOGIC_VECTOR(31 downto 0);
+				PDATA_H_OUT		: out STD_LOGIC_VECTOR(31 downto 0);
 				PREAD_EN			: in STD_LOGIC;
 				PWRITE_EN		: in STD_LOGIC;
 				PREADY			: out STD_LOGIC;
@@ -21,8 +18,8 @@ entity parser is
 				CONCATENATE		: out STD_LOGIC;
 				MESSAGE_TYPE	: out STD_LOGIC_VECTOR(7 downto 0);
 				PAYLOAD_SIZE	: out STD_LOGIC_VECTOR(15 downto 0);
-				state_d, state_d2 : out integer range 0 to 6;
-				data_i_d, data_ii_d, data_iii_d,data_iiii_d : out STD_LOGIC_VECTOR(PBUS_WIDTH-1 downto 0);
+				state_d, state_d2 : out integer range 0 to 7;
+				data_i_d, data_ii_d, data_iii_d,data_iiii_d : out STD_LOGIC_VECTOR(31 downto 0);
 				ov, ov2 : out integer range 3 downto 0;
 				ov_f, ov_ff : out STD_LOGIC);
 				
@@ -40,20 +37,20 @@ signal 	ready_i, ready_ii, ready_iii, ready_iiii : STD_LOGIC;
 signal	last_i : STD_LOGIC;
 signal 	valid_i, valid_ii : STD_LOGIC;
 signal	ov_flag_i, ov_flag_ii : STD_LOGIC;
-signal 	data_i, data_ii, data_iii, data_iiii, data_iiiii, data_h_out_i, data_h_out_ii, data_out_i, data_out_ii : STD_LOGIC_VECTOR(PBUS_WIDTH-1 downto 0);
+signal 	data_i, data_ii, data_iii, data_iiii, data_iiiii, data_h_out_i, data_h_out_ii, data_out_i, data_out_ii : STD_LOGIC_VECTOR(31 downto 0);
 signal	revision_i, revision_ii : STD_LOGIC_VECTOR(3 downto 0);
 signal	mes_type_i, mes_type_ii : STD_LOGIC_VECTOR(7 downto 0);
 signal	payload_size_i, payload_size_ii : STD_LOGIC_VECTOR(15 downto 0);
 signal	payload_size_i_mod : integer range 3 downto 0;
 signal	bytes_cnt_i, bytes_cnt_i_n, bytes_cnt_i_nn, payload_size_i_int : integer range 65535 downto 0;
-signal	overflow_i, overflow_ii : integer range 3 downto 0;
+signal	overflow_last, overflow_i, overflow_ii : integer range 3 downto 0;
 
 
 begin
 BYTE_CNT 		<= bytes_cnt_i;
 PREADY 			<= ready_i;
 PLAST 			<= last_i;
-
+/*
 PDATA_H_OUT 	<= data_h_out_ii;
 PDATA_OUT 		<= data_out_ii;
 REVISION_NUM	<= revision_ii;
@@ -61,8 +58,8 @@ CONCATENATE 	<= c_ii;
 MESSAGE_TYPE 	<= mes_type_ii;
 PAYLOAD_SIZE 	<= payload_size_ii;
 PVALID			<= valid_ii;
+*/
 
-/*
 PDATA_H_OUT 	<= data_h_out_i;
 PDATA_OUT 		<= data_out_i;
 REVISION_NUM	<= revision_i;
@@ -70,7 +67,7 @@ CONCATENATE 	<= c_i;
 MESSAGE_TYPE 	<= mes_type_i;
 PAYLOAD_SIZE 	<= payload_size_i;
 PVALID			<= valid_i;
-*/
+
 data_i_d 		<= data_i;
 data_ii_d		<= data_ii;
 data_iii_d		<= data_iii;
@@ -101,11 +98,12 @@ begin
 		when GET_D_H => state_d <= 3;
 		when GET_H_D => state_d <= 4;
 		when GET_DD => state_d <= 5;
-		when others => state_d <= 6;
+		when GET_D_H_S => state_d <= 6;
+		when SUSPEND => state_d <= 7;
 	end case;
 end process;
 
-state_d2_proc: process(state)
+state_d2_proc: process(state_i, state)
 begin
 	case state_i is
 		when IDLE => state_d2 <= 0;
@@ -114,9 +112,12 @@ begin
 		when GET_D_H => state_d2 <= 3;
 		when GET_H_D => state_d2 <= 4;
 		when GET_DD => state_d2 <= 5;
-		when others => state_d2 <= 6;
+		when GET_D_H_S => state_d2 <= 6;
+		when SUSPEND => state_d2 <= 7;
 	end case;
+	if state'event then
 	state_last <= state_i;
+	end if;
 end process;
 
 registers: process(CLK)
@@ -192,7 +193,7 @@ begin
 						state <= SUSPEND;
 					end if;
 				when GET_DD =>
-					if ready_iii and write_en_i then
+					if ready_iii and write_en_ii then
 						if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) and (overflow_i < payload_size_i_mod) then
 							state <= GET_D_H_S;
 						elsif ov_flag_i = '1' and bytes_cnt_i_nn > payload_size_i_int then
@@ -210,10 +211,10 @@ begin
 				when SUSPEND=>
 					if state_last = GET_DD or state_last = GET_D_H_S then
 						if ready_iii and write_en_i then
-							if bytes_cnt_i > payload_size_i_int then
-								state <= GET_D_H;
-							elsif bytes_cnt_i = payload_size_i_int then
+							if bytes_cnt_i = payload_size_i_int then
 								state <= GET_H;
+							elsif bytes_cnt_i_n > payload_size_i_int then
+								state <= GET_D_H;
 							else
 								state <= GET_DD;
 							end if;
@@ -295,12 +296,12 @@ begin
 			payload_size_i_mod<= 0;
 		else
 			if state = GET_H then
-				revision_i			<= data_iii(PBUS_WIDTH-1 downto PBUS_WIDTH-4);
-				c_i					<= data_iii(PBUS_WIDTH-8);
-				mes_type_i			<= data_iii(PBUS_WIDTH-9 downto PBUS_WIDTH-16);
-				payload_size_i		<= data_iii(PBUS_WIDTH-17 downto PBUS_WIDTH-32);
-				payload_size_i_int<= to_integer(unsigned(data_iii(PBUS_WIDTH-17 downto PBUS_WIDTH-32)));
-				payload_size_i_mod<= to_integer(unsigned(data_iii(PBUS_WIDTH-17 downto PBUS_WIDTH-32))) mod 4;
+				revision_i			<= data_iii(31 downto 28);
+				c_i					<= data_iii(24);
+				mes_type_i			<= data_iii(23 downto 16);
+				payload_size_i		<= data_iii(15 downto 0);
+				payload_size_i_int<= to_integer(unsigned(data_iii(15 downto 0)));
+				payload_size_i_mod<= to_integer(unsigned(data_iii(15 downto 0))) mod 4;
 			elsif state = GET_H_D then
 				case overflow_i is
 					when 1 =>
@@ -395,25 +396,23 @@ begin
 					data_h_out_i 	<= data_h_out_i;
 				when GET_D_H=>
 					data_h_out_i	<= data_h_out_i;
-					case overflow_ii is
+					case overflow_last is
 						when 0 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
+							case overflow_i is
 								when 1 =>
 									data_out_i <= (others=>'0');
-									data_out_i(31 downto 24) <= data_iii(31 downto 24);
+									data_out_i(31 downto 8) <= data_iii(31 downto 8);
 								when 2 =>
 									data_out_i <= (others=>'0');
 									data_out_i(31 downto 16) <= data_iii(31 downto 16);
 								when 3 =>
 									data_out_i <= (others=>'0');
-									data_out_i(31 downto 8) <= data_iii(31 downto 8);
+									data_out_i(31 downto 24) <= data_iii(31 downto 24);
+								when others =>
+									data_out_i <= (others=>'0');
 							end case;
 						when 1 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
+							case overflow_i is
 								when 1 =>
 									data_out_i <= (others=>'0');
 									data_out_i(31 downto 24) <= data_iii(7 downto 0);
@@ -423,11 +422,11 @@ begin
 								when 3 =>
 									data_out_i <= (others=>'0');
 									data_out_i(31 downto 8) <= data_iii(7 downto 0) & data_iiii(31 downto 16);
+								when others =>
+									data_out_i <= (others=>'0');
 							end case;
 						when 2 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
+							case overflow_i is
 								when 1 =>
 									data_out_i <= (others=>'0');
 									data_out_i(31 downto 24) <= data_iii(15 downto 8);
@@ -437,11 +436,11 @@ begin
 								when 3 =>
 									data_out_i <= (others=>'0');
 									data_out_i(31 downto 8) <= data_iii(15 downto 0) & data_iiii(31 downto 24);
+								when others =>
+									data_out_i <= (others=>'0');
 							end case;
 						when 3 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
+							case overflow_i is
 								when 1 =>
 									data_out_i <= (others=>'0');
 									data_out_i(31 downto 24) <= data_iii(23 downto 16);
@@ -451,6 +450,8 @@ begin
 								when 3 =>
 									data_out_i <= (others=>'0');
 									data_out_i(31 downto 8) <= data_iii(23 downto 0);
+								when others =>
+									data_out_i <= (others=>'0');
 							end case;
 						when others => data_out_i <= (others=>'0');
 					end case;
@@ -458,14 +459,14 @@ begin
 					data_out_i <= (others=>'0');
 					case overflow_i is
 						when 1 =>
-							data_out_i <= data_iii(1*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 1*8);
-							data_h_out_i <= data_iiii(1*8-1 downto 0) & data_iii(PBUS_WIDTH-1 downto 1*8);
+							data_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
+							data_h_out_i <= data_iiii(7 downto 0) & data_iii(31 downto 8);
 						when 2 =>
-							data_out_i <= data_iii(2*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 2*8);
-							data_h_out_i <= data_iiii(2*8-1 downto 0) & data_iii(PBUS_WIDTH-1 downto 2*8);
+							data_out_i <= data_iii(15 downto 0) & data_ii(31 downto 16);
+							data_h_out_i <= data_iiii(15 downto 0) & data_iii(31 downto 16);
 						when 3 =>
-							data_out_i <= data_iii(3*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 3*8);
-							data_h_out_i <= data_iiii(3*8-1 downto 0) & data_iii(PBUS_WIDTH-1 downto 3*8);
+							data_out_i <= data_iii(23 downto 0) & data_ii(31 downto 24);
+							data_h_out_i <= data_iiii(23 downto 0) & data_iii(31 downto 24);
 						when others =>
 							data_out_i <= (others=>'0');
 							data_h_out_i <= (others=>'0');
@@ -474,97 +475,41 @@ begin
 					data_h_out_i <= data_h_out_i;
 					case overflow_i is
 						when 1 =>
-							data_out_i <= data_iii(1*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 1*8);
+							data_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
 						when 2 =>
-							data_out_i <= data_iii(2*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 2*8);
+							data_out_i <= data_iii(15 downto 0) & data_ii(31 downto 16);
 						when 3 =>
-							data_out_i <= data_iii(3*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 3*8);
+							data_out_i <= data_iii(23 downto 0) & data_ii(31 downto 24);
 						when others =>
 							data_out_i <= (others=>'0');
 					end case;
 				when GET_D_H_S =>
-					case overflow_i is
-						when 0 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
-								when 1 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 24) <= data_iii(31 downto 24);
-								when 2 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 16) <= data_iii(31 downto 16);
-								when 3 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 8) <= data_iii(31 downto 8);
-							end case;
-						when 1 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
-								when 1 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 24) <= data_iii(7 downto 0);
-								when 2 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 16) <= data_iii(7 downto 0) & data_iiii(31 downto 24);
-								when 3 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 8) <= data_iii(7 downto 0) & data_iiii(31 downto 16);
-							end case;
-						when 2 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
-								when 1 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 24) <= data_iii(15 downto 8);
-								when 2 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 16) <= data_iii(15 downto 0);
-								when 3 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 8) <= data_iii(15 downto 0) & data_iiii(31 downto 24);
-							end case;
-						when 3 =>
-							case payload_size_i_mod is
-								when 0 =>
-									data_out_i <= (others=>'0');
-								when 1 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 24) <= data_iii(23 downto 16);
-								when 2 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 16) <= data_iii(23 downto 8);
-								when 3 =>
-									data_out_i <= (others=>'0');
-									data_out_i(31 downto 8) <= data_iii(23 downto 0);
-							end case;
-						when others => data_out_i <= (others=>'0');
-					end case;
+					data_out_i <= data_out_i;
 					case overflow_i is
 						when 1 =>
-							data_h_out_i <= data_iii(1*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 1*8);
+							data_h_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
 						when 2 =>
-							data_h_out_i <= data_iii(2*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 2*8);
+							data_h_out_i <= data_iii(15 downto 0) & data_ii(31 downto 16);
 						when 3 =>
-							data_h_out_i <= data_iii(3*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 3*8);
+							data_h_out_i <= data_iii(23 downto 0) & data_ii(31 downto 24);
 						when others =>
 							data_out_i <= (others=>'0');
 							data_h_out_i <= (others=>'0');
 					end case;
 				when SUSPEND=>
+				
 					case overflow_i is
 						when 1 =>
-							data_out_i <= data_iii(1*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 1*8);
+							data_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
 						when 2 =>
-							data_out_i <= data_iii(2*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 2*8);
+							data_out_i <= data_iii(15 downto 0) & data_ii(31 downto 16);
 						when 3 =>
-							data_out_i <= data_iii(3*8-1 downto 0) & data_ii(PBUS_WIDTH-1 downto 3*8);
+							data_out_i <= data_iii(23 downto 0) & data_ii(31 downto 24);
 						when others =>
 							data_out_i <= (others=>'0');
 					end case;
-					--data_out_i	 <= data_out_i;
+					
+					--data_out_i <= data_out_i;
 					data_h_out_i <= data_h_out_i;
 			end case;
 		end if;
@@ -633,6 +578,12 @@ begin
 	end if;
 end process;
 
+overflow_last_proc: process(overflow_ii)
+begin
+	if overflow_ii'event then
+		overflow_last <= overflow_ii;
+	end if;
+end process;
 
 last_proc: process(CLK)
 begin

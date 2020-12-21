@@ -74,16 +74,6 @@ begin
 	end if;
 end process;
 
-/*
-elem_cnt_proc: process(head, tail)
-begin
-	if head >= tail then
-		elem_cnt <= head - tail;
-	else
-		elem_cnt <= head - tail + FIFO_BUFF_DEPTH;
-	end if;
-end process;
-*/
 
 flags: process(elem_cnt)
 begin
@@ -120,11 +110,11 @@ end process;
 
 FIFO_EMPTY <= empty_i;
 
---FIFO_DATA_OUT 	<= fifo(tail);
---fifo(head) <= FIFO_DATA_IN;
+FIFO_DATA_OUT 	<= fifo(tail);
+fifo(head) <= FIFO_DATA_IN;
 
 
-data_in_out: process(FIFO_CLK)
+/*data_in_out: process(FIFO_CLK)
 begin
 	if rising_edge(FIFO_CLK) then
 		FIFO_DATA_OUT <= fifo(tail);
@@ -133,7 +123,7 @@ begin
 		end if;
 	end if;
 end process;
-
+*/
 
 end rtl;
 
