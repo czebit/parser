@@ -123,7 +123,7 @@ end process;
 ----------------------------------------------------------
 --read stimulus
 ----------------------------------------------------------	
-
+/*
 read_proc: process(CLK)
 variable i : INTEGER := 0;
 begin
@@ -145,7 +145,7 @@ begin
 		end if;
 	end if;
 end process;
-
+*/
 	
 ----------------------------------------------------------
 --write stimulus
@@ -174,7 +174,7 @@ begin
 	end if;
 end process;
 
---PREAD_EN <= '1';	
+PREAD_EN <= '1';	
 --pwrite_en_i <= '1';
 
 cnt_w_proc: process(CLK)

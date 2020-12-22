@@ -31,8 +31,8 @@ type state_type is (IDLE, SUSPEND, GET_H, GET_D, GET_DD, GET_H_D, GET_D_H, GET_D
 signal	state, state_i, state_last : state_type;
 
 signal 	c_i, c_ii : STD_LOGIC;
-signal	write_en_i, write_en_ii : STD_LOGIC;
-signal	read_en_i, read_en_ii : STD_LOGIC;
+signal	write_en_i, write_en_ii, write_en_iii : STD_LOGIC;
+signal	read_en_i, read_en_ii, read_en_iii : STD_LOGIC;
 signal 	ready_i, ready_ii, ready_iii, ready_iiii : STD_LOGIC;
 signal	last_i : STD_LOGIC;
 signal 	valid_i, valid_ii : STD_LOGIC;
@@ -134,8 +134,10 @@ begin
 		data_h_out_ii <= data_h_out_i;
 		read_en_i <= PREAD_EN;
 		read_en_ii <= read_en_i;
+		read_en_iii <= read_en_ii;
 		write_en_i <= PWRITE_EN;
 		write_en_ii <= write_en_i;
+		write_en_iii <= write_en_ii;
 		payload_size_ii <= payload_size_i;
 		revision_ii <= revision_i;
 		mes_type_ii <= mes_type_i;
@@ -177,7 +179,7 @@ begin
 						state <= SUSPEND;
 					end if;
 				when GET_D_H=>
-					if ready_iii and write_en_i then
+					if ready_iiii and write_en_ii then
 						state <= GET_H_D;
 					else
 						state <= SUSPEND;
@@ -193,7 +195,7 @@ begin
 						state <= SUSPEND;
 					end if;
 				when GET_DD =>
-					if ready_iii and write_en_ii then
+					if ready_iii and write_en_i then
 						if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) and (overflow_i < payload_size_i_mod) then
 							state <= GET_D_H_S;
 						elsif ov_flag_i = '1' and bytes_cnt_i_nn > payload_size_i_int then
