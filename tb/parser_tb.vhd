@@ -158,13 +158,13 @@ begin
 			pwrite_en_i <= '0';
 			i := 0;
 		else
-			if i = 10 then
+			if i = 9 then
 				i := 0;
 			else
 				i := i + 1;
 			end if;
 			
-			if i >= 1 then
+			if i >= 2 then
 				pwrite_en_i <= '1';
 			else
 				pwrite_en_i <= '0';

@@ -28,7 +28,6 @@ begin
 	PARSER_IN <= fifo_data_out_i;
 	PARSER_OUT <= parser_data_out_i;
 	pwrite_en_i <= not(fifo_in_nempty_i);
-	--pread_en_i <= not(fifo_out_nfull_i);
 	
 	fifo_in: entity work.fifo(rtl)
 		generic map(FIFO_BUS_WIDTH=>BUS_SIZE,
@@ -49,7 +48,6 @@ begin
 		            PDATA_IN=>fifo_data_out_i,
 		            PDATA_OUT=>parser_data_out_i,
 		            PDATA_H_OUT=>open,
-		            --PREAD_EN=>pread_en_i,
 		            PWRITE_EN=>pwrite_en_i,
 		            PREADY=>pready_i,
 		            PVALID=>pvalid_i,
@@ -66,7 +64,6 @@ begin
 						FIFO_WRITE_EN=>pvalid_i,
 						FIFO_EMPTY=>open,
 						FIFO_NEXT_EMPTY=>BUFF_OUT_NEXT_EMPTY,
-						--FIFO_NEXT_FULL=>fifo_out_nfull_i);
 						FIFO_NEXT_FULL=>open);
 		
 end rtl;
