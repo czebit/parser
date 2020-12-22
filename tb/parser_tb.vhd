@@ -28,10 +28,10 @@ signal CONCATENATE, ov_f, ov_ff	: STD_LOGIC;
 signal pvalid_i, pready_i, plast_i, pwrite_en_i : STD_LOGIC := '0';
 signal pdata_out_i : STD_LOGIC_VECTOR(31 downto 0);
 subtype 	word	is STD_LOGIC_VECTOR(31 downto 0);
-type 		mem	is array(100 downto 0) of word;
+type 		mem	is array(1000 downto 0) of word;
 signal data_w, data_r : mem := (others=>(others=> '0'));
 
-signal cnt_w, cnt_r : INTEGER range 100 downto 0 := 0;
+signal cnt_w, cnt_r : INTEGER range 1000 downto 0 := 0;
 
 ----------------------------------------------------------
 --File handling
@@ -159,7 +159,7 @@ begin
 			pwrite_en_i <= '0';
 			i := 0;
 		else
-			if i = 9 then
+			if i = 10 then
 				i := 0;
 			else
 				i := i + 1;

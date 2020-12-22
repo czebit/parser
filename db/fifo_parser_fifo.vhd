@@ -67,5 +67,6 @@ begin
 						FIFO_EMPTY=>open,
 						FIFO_NEXT_EMPTY=>BUFF_OUT_NEXT_EMPTY,
 						FIFO_NEXT_FULL=>fifo_out_nfull_i);
+						--FIFO_NEXT_FULL=>open);
 		
 end rtl;
