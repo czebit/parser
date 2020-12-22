@@ -15,7 +15,7 @@ architecture sim of parser_tb is
 signal CLK, RESETn	:  STD_LOGIC;
 
 signal data_iiii_d, data_iii_d, data_ii_d, data_i_d, PDATA_IN : STD_LOGIC_VECTOR(31 downto 0);
-signal PREAD_EN, PWRITE_EN, PREADY, PLAST, PVALID	: STD_LOGIC;
+signal PWRITE_EN, PREADY, PLAST, PVALID	: STD_LOGIC;
 signal PDATA_OUT, PDATA_H_OUT : STD_LOGIC_VECTOR(31 downto 0);
 signal BYTE_CNT : integer range 65535 downto 0;
 signal PAYLOAD_SIZE	: STD_LOGIC_VECTOR(15 downto 0);
@@ -48,7 +48,6 @@ begin
 					PDATA_IN=>PDATA_IN,
 					PDATA_OUT=>PDATA_OUT,
 					PDATA_H_OUT=>PDATA_H_OUT,
-					PREAD_EN=>PREAD_EN,
 					PWRITE_EN=>PWRITE_EN,
 					PREADY=>PREADY,
 					PLAST=>PLAST,
@@ -174,7 +173,7 @@ begin
 	end if;
 end process;
 
-PREAD_EN <= '1';	
+--PREAD_EN <= '1';	
 --pwrite_en_i <= '1';
 
 cnt_w_proc: process(CLK)

@@ -8,7 +8,6 @@ entity parser is
 				PDATA_IN			: in STD_LOGIC_VECTOR(31 downto 0);
 				PDATA_OUT		: out STD_LOGIC_VECTOR(31 downto 0);
 				PDATA_H_OUT		: out STD_LOGIC_VECTOR(31 downto 0);
-				PREAD_EN			: in STD_LOGIC;
 				PWRITE_EN		: in STD_LOGIC;
 				PREADY			: out STD_LOGIC;
 				PVALID			: out STD_LOGIC;
@@ -48,7 +47,7 @@ signal	overflow_last, overflow_i, overflow_ii : integer range 3 downto 0;
 
 begin
 BYTE_CNT 		<= bytes_cnt_i;
-PREADY 			<= PWRITE_EN and write_en_i and PREAD_EN and read_en_i;
+PREADY 			<= PWRITE_EN and write_en_i;
 PLAST 			<= last_i;
 /*
 PDATA_H_OUT 	<= data_h_out_ii;
@@ -117,15 +116,12 @@ begin
 		data_ii <= data_i;
 		data_iii <= data_ii;
 		data_iiii <= data_iii;
-		ready_i <= write_en_i and PREAD_EN;
+		ready_i <= write_en_i;
 		ready_ii <= ready_i;
 		ready_iii <= ready_ii;
 		ready_iiii <= ready_iii;
 		data_out_ii <= data_out_i;
 		data_h_out_ii <= data_h_out_i;
-		read_en_i <= PREAD_EN;
-		read_en_ii <= read_en_i;
-		read_en_iii <= read_en_ii;
 		write_en_i <= PWRITE_EN;
 		write_en_ii <= write_en_i;
 		write_en_iii <= write_en_ii;
@@ -152,7 +148,7 @@ begin
 						state <= IDLE;
 					end if;
 				when GET_H =>
-					if write_en_i and ready_ii and ready_iii and ready_iiii then
+					if ready_i and ready_ii and ready_iii and ready_iiii then
 						state <= GET_D;
 					else
 						state <= SUSPEND;
