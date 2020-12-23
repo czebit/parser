@@ -119,8 +119,6 @@ begin
 		data_iii <= data_ii;
 		data_iiii <= data_iii;
 		write_en_i <= PWRITE_EN;
-		write_en_ii <= write_en_i;
-		write_en_iii <= write_en_ii;
 		ready_i <= write_en_i;
 		ready_ii <= ready_i;
 		ready_iii <= ready_ii;
@@ -146,7 +144,7 @@ begin
 		else
 			case state is
 				when IDLE=>
-					if ready then
+					if ready_i and ready_ii and ready_iii then
 						state <= GET_H;
 					else
 						state <= IDLE;
@@ -187,13 +185,13 @@ begin
 					end if;
 				when GET_DD =>
 					if ready then
-						if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) and (overflow_i < payload_size_i_mod) then
+						--if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) and (overflow_i < payload_size_i_mod) then
 							--if ready2 then
-								state <= GET_D_H_S;
+							--	state <= GET_D_H_S;
 							--else
 								--state<= SUSPEND;
 							--end if;
-						elsif ov_flag_i = '1' and bytes_cnt_i_nn > payload_size_i_int then
+						if ov_flag_i = '1' and bytes_cnt_i_nn > payload_size_i_int then
 							state <= GET_D_H;
 						elsif bytes_cnt_i_n = payload_size_i_int then
 							state <= GET_H;
@@ -205,7 +203,11 @@ begin
 					end if;
 				when GET_D_H_S =>
 					if ready then
-						state <= GET_H_D_S;
+						if state_last = SUSPEND then
+							state <= GET_H_D_S;
+						else
+							state <= GET_H_D;
+						end if;
 					else
 						state <= SUSPEND;
 					end if;
@@ -232,7 +234,7 @@ begin
 						end if;
 					elsif state_last = GET_D_H_S then
 						if ready then
-							state <= GET_H_D_S;
+							state <= GET_H_D;
 						else
 							state <= SUSPEND;
 						end if;
@@ -329,7 +331,7 @@ begin
 				payload_size_i		<= data_iii(15 downto 0);
 				payload_size_i_int<= to_integer(unsigned(data_iii(15 downto 0)));
 				payload_size_i_mod<= to_integer(unsigned(data_iii(15 downto 0))) mod 4;
-			elsif state = GET_H_D or state = GET_H_D_S then
+			elsif state = GET_H_D then
 				case overflow_i is
 					when 1 =>
 						revision_i			<= data_iiii(7 downto 4);
@@ -360,8 +362,7 @@ begin
 						payload_size_i_int<= payload_size_i_int;
 						payload_size_i_mod<= payload_size_i_mod;
 				end case;
-				/*
-			elsif state = GET_D_H_S then
+			elsif state = GET_H_D_S then
 				case overflow_i is
 					when 1 =>
 						revision_i			<= data_iii(7 downto 4);
@@ -392,7 +393,6 @@ begin
 						payload_size_i_int<= payload_size_i_int;
 						payload_size_i_mod<= payload_size_i_mod;
 				end case;
-				*/
 			else
 				revision_i			<= revision_i;
 				c_i					<= c_i;
@@ -531,24 +531,17 @@ begin
 				when GET_H_D_S =>
 					case overflow_i is
 						when 1 =>
-							data_h_out_i <= data_iiii(7 downto 0) & data_iii(31 downto 8);
+							data_h_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
+							data_out_i <= data_ii(7 downto 0) & data_i(31 downto 8);
 						when 2 =>
-							data_h_out_i <= data_iiii(15 downto 0) & data_iii(31 downto 16);
+							data_h_out_i <= data_iii(15 downto 0) & data_ii(31 downto 16);
+							data_out_i <= data_ii(15 downto 0) & data_i(31 downto 16);
 						when 3 =>
-							data_h_out_i <= data_iiii(23 downto 0) & data_iii(31 downto 24);
+							data_h_out_i <= data_iii(23 downto 0) & data_ii(31 downto 24);
+							data_out_i <= data_ii(23 downto 0) & data_i(31 downto 24);
 						when others =>
 							data_out_i <= (others=>'0');
 							data_h_out_i <= (others=>'0');
-					end case;
-					case overflow_i is
-						when 1 =>
-							data_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
-						when 2 =>
-							data_out_i <= data_iii(15 downto 0) & data_ii(31 downto 16);
-						when 3 =>
-							data_out_i <= data_iii(23 downto 0) & data_ii(31 downto 24);
-						when others =>
-							data_out_i <= (others=>'0');
 					end case;
 				when SUSPEND=>
 					data_out_i <= data_out_i;
@@ -609,8 +602,8 @@ begin
 			overflow_i	<= 0;
 			overflow_ii <= 0;
 		else
-				if (bytes_cnt_i_nn > payload_size_i_int) and (state = GET_D or state = GET_DD) then
-					overflow_i <= (bytes_cnt_i_n - payload_size_i_int) mod 4;
+				if (bytes_cnt_i_nn > payload_size_i_int) and (state = GET_D or state = GET_DD or state = GET_D_H_S) then
+					overflow_i <= (bytes_cnt_i_nn - payload_size_i_int) mod 4;
 					overflow_ii <= overflow_i;
 				else
 					overflow_i <= overflow_i;
