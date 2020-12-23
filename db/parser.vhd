@@ -17,7 +17,7 @@ entity parser is
 				CONCATENATE		: out STD_LOGIC;
 				MESSAGE_TYPE	: out STD_LOGIC_VECTOR(7 downto 0);
 				PAYLOAD_SIZE	: out STD_LOGIC_VECTOR(15 downto 0);
-				state_d, state_d2 : out integer range 0 to 7;
+				state_d, state_d2 : out integer range 0 to 8;
 				data_i_d, data_ii_d, data_iii_d,data_iiii_d : out STD_LOGIC_VECTOR(31 downto 0);
 				ov, ov2 : out integer range 3 downto 0;
 				ov_f, ov_ff : out STD_LOGIC);
@@ -26,12 +26,12 @@ end parser;
 
 architecture rtl of parser is
 
-type state_type is (IDLE, SUSPEND, GET_H, GET_D, GET_DD, GET_H_D, GET_D_H, GET_D_H_S);
+type state_type is (IDLE, SUSPEND, GET_H, GET_D, GET_DD, GET_H_D, GET_D_H, GET_D_H_S, GET_H_D_S);
 signal	state, state_i, state_last : state_type;
 
 signal 	c_i, c_ii : STD_LOGIC;
 signal	write_en_i, write_en_ii, write_en_iii : STD_LOGIC;
-signal 	ready_i, ready_ii, ready_iii, ready_iiii : STD_LOGIC;
+signal 	ready, ready2, ready3, ready_i, ready_ii, ready_iii, ready_iiii : STD_LOGIC;
 signal	last_i : STD_LOGIC;
 signal 	valid_i, valid_ii : STD_LOGIC;
 signal	ov_flag_i, ov_flag_ii : STD_LOGIC;
@@ -46,6 +46,7 @@ signal	overflow_last, overflow_i, overflow_ii : integer range 3 downto 0;
 
 begin
 BYTE_CNT 		<= bytes_cnt_i;
+--PREADY 			<= write_en_i;
 PREADY 			<= PWRITE_EN and write_en_i;
 PLAST 			<= last_i;
 /*
@@ -87,7 +88,8 @@ begin
 		when GET_H_D => state_d <= 4;
 		when GET_DD => state_d <= 5;
 		when GET_D_H_S => state_d <= 6;
-		when SUSPEND => state_d <= 7;
+		when GET_H_D_S => state_d <= 7;
+		when SUSPEND => state_d <= 8;
 	end case;
 end process;
 
@@ -101,7 +103,8 @@ begin
 		when GET_H_D => state_d2 <= 4;
 		when GET_DD => state_d2 <= 5;
 		when GET_D_H_S => state_d2 <= 6;
-		when SUSPEND => state_d2 <= 7;
+		when GET_H_D_S => state_d2 <= 7;
+		when SUSPEND => state_d2 <= 8;
 	end case;
 	if state'event then
 	state_last <= state_i;
@@ -133,6 +136,8 @@ begin
 	end if;
 end process;
 
+ready <= ready_i and ready_ii and ready_iii;
+
 state_machine_proc: process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -141,19 +146,19 @@ begin
 		else
 			case state is
 				when IDLE=>
-					if ready_i and ready_ii and ready_iii then
+					if ready then
 						state <= GET_H;
 					else
 						state <= IDLE;
 					end if;
 				when GET_H =>
-					if  ready_i and ready_ii and ready_iii then
+					if ready then
 						state <= GET_D;
 					else
 						state <= SUSPEND;
 					end if;
 				when GET_D=>
-					if ready_i and ready_ii and ready_iii then
+					if ready then
 						if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) then
 							state <= GET_D_H;
 						elsif bytes_cnt_i_n = payload_size_i_int then
@@ -165,13 +170,13 @@ begin
 						state <= SUSPEND;
 					end if;
 				when GET_D_H=>
-					if ready_i and  ready_ii and ready_iii  then
+					if ready  then
 						state <= GET_H_D;
 					else
 						state <= SUSPEND;
 					end if;
 				when GET_H_D =>
-					if ready_i and ready_ii and ready_iii  then
+					if ready then
 						if payload_size_i_int < bytes_cnt_i_n then
 							state <= GET_D_H;
 						else
@@ -181,13 +186,13 @@ begin
 						state <= SUSPEND;
 					end if;
 				when GET_DD =>
-					if ready_i and ready_ii and ready_iii  then
+					if ready then
 						if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) and (overflow_i < payload_size_i_mod) then
-							if write_en_i then
+							--if ready2 then
 								state <= GET_D_H_S;
-							else
-								state<= SUSPEND;
-							end if;
+							--else
+								--state<= SUSPEND;
+							--end if;
 						elsif ov_flag_i = '1' and bytes_cnt_i_nn > payload_size_i_int then
 							state <= GET_D_H;
 						elsif bytes_cnt_i_n = payload_size_i_int then
@@ -199,16 +204,23 @@ begin
 						state <= SUSPEND;
 					end if;
 				when GET_D_H_S =>
-					state <= SUSPEND;
+					if ready then
+						state <= GET_H_D_S;
+					else
+						state <= SUSPEND;
+					end if;
+				when GET_H_D_S =>
+					if ready then
+						state <= GET_DD;
+					else
+						state <= SUSPEND;
+					end if;
 				when SUSPEND=>
 					if state_last = GET_DD then
-						if  ready_ii and ready_iii then
-							if (bytes_cnt_i_nn > payload_size_i_int) and (overflow_i < payload_size_i_mod) then
+						if ready then
+							if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) and (overflow_i < payload_size_i_mod) then
 								state <= GET_D_H_S;
-							else
-								state<= SUSPEND;
-							end if;
-							if bytes_cnt_i = payload_size_i_int then
+							elsif bytes_cnt_i = payload_size_i_int then
 								state <= GET_H;
 							elsif bytes_cnt_i_n > payload_size_i_int then
 								state <= GET_D_H;
@@ -219,7 +231,13 @@ begin
 							state <= SUSPEND;
 						end if;
 					elsif state_last = GET_D_H_S then
-						if ready_i and ready_ii and ready_iii then
+						if ready then
+							state <= GET_H_D_S;
+						else
+							state <= SUSPEND;
+						end if;
+					elsif state_last = GET_H_D_S then
+						if ready then
 							if bytes_cnt_i = payload_size_i_int then
 								state <= GET_H;
 							elsif bytes_cnt_i_n > payload_size_i_int then
@@ -231,13 +249,13 @@ begin
 							state <= SUSPEND;
 						end if;
 					elsif state_last = GET_D_H then
-						if ready_ii and ready_iii then
+						if ready then
 							state <= GET_H_D;
 						else
 							state <= SUSPEND;
 						end if;
 					elsif state_last = GET_H_D then
-						if  ready_ii and ready_iii then
+						if ready then
 							if bytes_cnt_i_n > payload_size_i_int then
 								state <= GET_D_H;
 							else
@@ -247,7 +265,7 @@ begin
 							state <= SUSPEND;
 						end if;
 					else
-						if ready_i and ready_ii and ready_iii then
+						if ready then
 							if bytes_cnt_i = payload_size_i_int then
 								state <= GET_H;
 							elsif bytes_cnt_i_n > payload_size_i_int then
@@ -276,7 +294,7 @@ begin
 				bytes_cnt_i <= 0;
 				bytes_cnt_i_n <= 0;
 				bytes_cnt_i_nn <= 0;
-			elsif state = GET_H or state = GET_H_D or state = GET_D_H or state = GET_D_H_S then
+			elsif state = GET_H or state = GET_H_D or state = GET_D_H or state = GET_D_H_S or state = GET_H_D_S then
 				bytes_cnt_i <= overflow_i;
 				bytes_cnt_i_n <= 4 + overflow_i;
 				bytes_cnt_i_nn <= 8 + overflow_i;
@@ -311,7 +329,7 @@ begin
 				payload_size_i		<= data_iii(15 downto 0);
 				payload_size_i_int<= to_integer(unsigned(data_iii(15 downto 0)));
 				payload_size_i_mod<= to_integer(unsigned(data_iii(15 downto 0))) mod 4;
-			elsif state = GET_H_D then
+			elsif state = GET_H_D or state = GET_H_D_S then
 				case overflow_i is
 					when 1 =>
 						revision_i			<= data_iiii(7 downto 4);
@@ -342,6 +360,7 @@ begin
 						payload_size_i_int<= payload_size_i_int;
 						payload_size_i_mod<= payload_size_i_mod;
 				end case;
+				/*
 			elsif state = GET_D_H_S then
 				case overflow_i is
 					when 1 =>
@@ -373,6 +392,7 @@ begin
 						payload_size_i_int<= payload_size_i_int;
 						payload_size_i_mod<= payload_size_i_mod;
 				end case;
+				*/
 			else
 				revision_i			<= revision_i;
 				c_i					<= c_i;
@@ -494,6 +514,8 @@ begin
 					end case;
 				when GET_D_H_S =>
 					data_out_i <= data_out_i;
+					data_h_out_i <= data_h_out_i;
+					/*
 					case overflow_i is
 						when 1 =>
 							data_h_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
@@ -505,8 +527,19 @@ begin
 							data_out_i <= (others=>'0');
 							data_h_out_i <= (others=>'0');
 					end case;
-				when SUSPEND=>
-				
+					*/
+				when GET_H_D_S =>
+					case overflow_i is
+						when 1 =>
+							data_h_out_i <= data_iiii(7 downto 0) & data_iii(31 downto 8);
+						when 2 =>
+							data_h_out_i <= data_iiii(15 downto 0) & data_iii(31 downto 16);
+						when 3 =>
+							data_h_out_i <= data_iiii(23 downto 0) & data_iii(31 downto 24);
+						when others =>
+							data_out_i <= (others=>'0');
+							data_h_out_i <= (others=>'0');
+					end case;
 					case overflow_i is
 						when 1 =>
 							data_out_i <= data_iii(7 downto 0) & data_ii(31 downto 8);
@@ -517,8 +550,8 @@ begin
 						when others =>
 							data_out_i <= (others=>'0');
 					end case;
-					
-					--data_out_i <= data_out_i;
+				when SUSPEND=>
+					data_out_i <= data_out_i;
 					data_h_out_i <= data_h_out_i;
 			end case;
 		end if;
@@ -531,9 +564,9 @@ begin
 		if not(RESETn) then
 			valid_i <= '0';
 		else
-			if state_i = GET_D_H_S and state = SUSPEND then
-				valid_i <= '1';
-			elsif state = IDLE or state = SUSPEND or state = GET_H or state = GET_D_H_S then
+			--if state_i = GET_D_H_S and state = SUSPEND and ready = '1' then
+				--valid_i <= '1';
+			if state = IDLE or state = SUSPEND or state = GET_H or state = GET_D_H_S then
 				valid_i <= '0';
 			else
 				valid_i <= '1';

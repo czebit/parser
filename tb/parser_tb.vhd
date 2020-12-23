@@ -22,7 +22,7 @@ signal PAYLOAD_SIZE	: STD_LOGIC_VECTOR(15 downto 0);
 signal MESSAGE_TYPE	: STD_LOGIC_VECTOR(7 downto 0);
 
 signal ov : integer range 3 downto 0;
-signal state_d, state_d2 : integer range 0 to 7;
+signal state_d, state_d2 : integer range 0 to 8;
 signal REVISION_NUM	: STD_LOGIC_VECTOR(3 downto 0);
 signal CONCATENATE, ov_f, ov_ff	: STD_LOGIC;
 signal pvalid_i, pready_i, plast_i, pwrite_en_i : STD_LOGIC := '0';
@@ -158,13 +158,13 @@ begin
 			pwrite_en_i <= '0';
 			i := 0;
 		else
-			if i = 9 then
+			if i = 15 then
 				i := 0;
 			else
 				i := i + 1;
 			end if;
 			
-			if i >= 2 then
+			if i >= 1 then
 				pwrite_en_i <= '1';
 			else
 				pwrite_en_i <= '0';
