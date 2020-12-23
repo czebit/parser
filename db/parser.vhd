@@ -136,6 +136,7 @@ end process;
 
 ready <= ready_i and ready_ii and ready_iii;
 
+
 state_machine_proc: process(CLK)
 begin
 	if rising_edge(CLK) then
