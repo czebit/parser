@@ -158,7 +158,7 @@ begin
 			pwrite_en_i <= '0';
 			i := 0;
 		else
-			if i = 15 then
+			if i = 10 then
 				i := 0;
 			else
 				i := i + 1;
