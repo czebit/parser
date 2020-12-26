@@ -105,14 +105,12 @@ set_global_assignment -name VHDL_FILE db/axi_st_slave.vhd
 set_global_assignment -name VHDL_FILE db/axi_st_master.vhd
 set_global_assignment -name VHDL_FILE db/parser.vhd
 set_global_assignment -name VHDL_FILE db/parser_top.vhd
-set_global_assignment -name VHDL_FILE db/axi_top.vhd
 set_global_assignment -name VHDL_FILE db/axi_fifo_top.vhd
 set_global_assignment -name VHDL_FILE db/fifo_parser_fifo.vhd
 set_global_assignment -name VHDL_FILE tb/parser_tb.vhd
 set_global_assignment -name VHDL_FILE tb/fifo_tb.vhd
 set_global_assignment -name VHDL_FILE tb/axi_master_tb.vhd
 set_global_assignment -name VHDL_FILE tb/axi_slave_tb.vhd
-set_global_assignment -name VHDL_FILE tb/axi_top_tb.vhd
 set_global_assignment -name VHDL_FILE tb/axi_fifo_top_tb.vhd
 set_global_assignment -name VHDL_FILE tb/parser_top_tb.vhd -hdl_version VHDL_2008
 set_global_assignment -name VHDL_FILE tb/fifo_parser_fifo_tb.vhd
