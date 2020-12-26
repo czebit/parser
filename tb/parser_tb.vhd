@@ -31,7 +31,8 @@ signal CONCATENATE, ov_f, ov_ff	: STD_LOGIC;
 --File handling
 ----------------------------------------------------------
 	file test_file	: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen2.txt";
-
+	file out_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/testbench_output.txt";
+	
 begin
 ----------------------------------------------------------
 --Instantiate and port map UUT
