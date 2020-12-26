@@ -124,6 +124,7 @@ set_global_assignment -name EDA_TEST_BENCH_NAME fifo_parser_fifo_tb -section_id 
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fifo_parser_fifo_tb
 set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "300 ns" -section_id fifo_parser_fifo_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME fifo_parser_fifo_tb -section_id fifo_parser_fifo_tb
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/parser_tb.vhd -section_id parser_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_master_tb.vhd -section_id axi_master_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_slave_tb.vhd -section_id axi_slave_tb
@@ -132,4 +133,3 @@ set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_top_tb.vhd -section_id ax
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_fifo_top_tb.vhd -section_id axi_fifo_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/parser_top_tb.vhd -section_id parser_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/fifo_parser_fifo_tb.vhd -section_id fifo_parser_fifo_tb
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

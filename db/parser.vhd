@@ -12,6 +12,7 @@ entity parser is
 				PREADY			: out STD_LOGIC;
 				PVALID			: out STD_LOGIC;
 				PLAST				: out STD_LOGIC;
+				PKEEP				: out STD_LOGIC_VECTOR(3 downto 0);
 				BYTE_CNT			: out integer range 65535 downto 0;
 				REVISION_NUM	: out STD_LOGIC_VECTOR(3 downto 0);
 				CONCATENATE		: out STD_LOGIC;
@@ -19,8 +20,8 @@ entity parser is
 				PAYLOAD_SIZE	: out STD_LOGIC_VECTOR(15 downto 0);
 				state_d, state_d2 : out integer range 0 to 8;
 				data_i_d, data_ii_d, data_iii_d,data_iiii_d : out STD_LOGIC_VECTOR(31 downto 0);
-				ov, ov2 : out integer range 3 downto 0;
-				ov_f, ov_ff, r1, r2, r3, r4 : out STD_LOGIC);
+				ov  : out integer range 3 downto 0;
+				ov_f,ov2, ov_ff : out STD_LOGIC);
 				
 end parser;
 
@@ -29,36 +30,34 @@ architecture rtl of parser is
 type state_type is (IDLE, SUSPEND, GET_H, GET_D, GET_DD, GET_H_D);
 signal	state, state_i, state_last : state_type;
 
-signal 	c_i, c_ii : STD_LOGIC;
-signal	write_en_i, write_en_ii, write_en_iii : STD_LOGIC;
-signal 	ready, ready2, ready3, ready_i, ready_ii, ready_iii, ready_iiii : STD_LOGIC;
+signal 	c_i, c_ii, c_iii : STD_LOGIC;
+signal	write_en_i : STD_LOGIC;
+signal 	ready, ready_i, ready_ii, ready_iii, ready_iiii : STD_LOGIC;
 signal	last_i : STD_LOGIC;
 signal 	valid_i, valid_ii : STD_LOGIC;
 signal	ov_flag_i, ov_flag_ii : STD_LOGIC;
-signal 	data_0, data_i, data_ii, data_iii, data_iiii, data_iiiii, data_h_out_i, data_h_out_ii, data_out_i, data_out_ii : STD_LOGIC_VECTOR(31 downto 0);
-signal	revision_i, revision_ii : STD_LOGIC_VECTOR(3 downto 0);
-signal	mes_type_i, mes_type_ii : STD_LOGIC_VECTOR(7 downto 0);
-signal	payload_size_i, payload_size_ii : STD_LOGIC_VECTOR(15 downto 0);
+signal 	data_0, data_i, data_ii, data_iii, data_iiii, data_h_out_i, data_h_out_ii, data_h_out_iii, data_out_i, data_out_ii : STD_LOGIC_VECTOR(31 downto 0);
+signal	keep_i : STD_LOGIC_VECTOR(3 downto 0);
+signal	revision_i, revision_ii, revision_iii : STD_LOGIC_VECTOR(3 downto 0);
+signal	mes_type_i, mes_type_ii, mes_type_iii : STD_LOGIC_VECTOR(7 downto 0);
+signal	payload_size_i, payload_size_ii, payload_size_iii : STD_LOGIC_VECTOR(15 downto 0);
 signal	payload_size_i_mod, payload_size_i_mod_last, payload_shift_i, payload_shift_ii : integer range 3 downto 0;
 signal	bytes_cnt_i, bytes_cnt_i_n, bytes_cnt_i_nn, payload_size_i_int : integer range 65535 downto 0;
-signal	overflow_last, overflow_i, overflow_ii : integer range 3 downto 0;
-
 
 begin
 BYTE_CNT 		<= bytes_cnt_i;
---PREADY 			<= write_en_i;
 PREADY 			<= PWRITE_EN and write_en_i;
 PLAST 			<= last_i;
-/*
-PDATA_H_OUT 	<= data_h_out_ii;
-PDATA_OUT 		<= data_out_ii;
-REVISION_NUM	<= revision_ii;
-CONCATENATE 	<= c_ii;
-MESSAGE_TYPE 	<= mes_type_ii;
-PAYLOAD_SIZE 	<= payload_size_ii;
-PVALID			<= valid_ii;
-*/
 
+PDATA_H_OUT 	<= data_h_out_iii;
+PDATA_OUT 		<= data_out_ii;
+REVISION_NUM	<= revision_iii;
+CONCATENATE 	<= c_iii;
+MESSAGE_TYPE 	<= mes_type_iii;
+PAYLOAD_SIZE 	<= payload_size_iii;
+PVALID			<= valid_ii;
+PKEEP 			<= keep_i;
+/*
 PDATA_H_OUT 	<= data_h_out_i;
 PDATA_OUT 		<= data_out_i;
 REVISION_NUM	<= revision_i;
@@ -66,6 +65,7 @@ CONCATENATE 	<= c_i;
 MESSAGE_TYPE 	<= mes_type_i;
 PAYLOAD_SIZE 	<= payload_size_i;
 PVALID			<= valid_i;
+*/
 
 data_i_d 		<= data_i;
 data_ii_d		<= data_ii;
@@ -73,13 +73,8 @@ data_iii_d		<= data_iii;
 data_iiii_d		<= data_iiii;
 
 ov					<= payload_shift_i;
-ov2 				<= overflow_ii;
 ov_f				<= ov_flag_i;
 ov_ff				<= ov_flag_ii;
-r1<= ready_i;
-r2<= ready_ii;
-r3<= ready_iii;
-r4<= ready_iiii;
 
 state_proc: process(state)
 begin
@@ -111,29 +106,41 @@ end process;
 registers: process(CLK)
 begin
 	if rising_edge(CLK) then
+	if PWRITE_EN and write_en_i then
 		data_0 <= PDATA_IN;
 		data_i <= data_0;
 		data_ii <= data_i;
 		data_iii <= data_ii;
 		data_iiii <= data_iii;
-		write_en_i <= PWRITE_EN;
-		ready_i <= write_en_i;
-		ready_ii <= ready_i;
-		ready_iii <= ready_ii;
-		ready_iiii <= ready_iii;
-		data_out_ii <= data_out_i;
-		data_h_out_ii <= data_h_out_i;
+	else
+		data_0 <= data_0;
+		data_i <= data_i;
+		data_ii <= data_ii;
+		data_iii <= data_iii;
+		data_iiii <= data_iiii;
+	end if;
+		write_en_i		<= PWRITE_EN;
+		ready_i 			<= write_en_i;
+		ready_ii 		<= ready_i;
+		ready_iii 		<= ready_ii;
+		ready_iiii 		<= ready_iii;
+		data_out_ii 	<= data_out_i;
+		data_h_out_ii 	<= data_h_out_i;
+		data_h_out_iii	<= data_h_out_ii;
 		payload_size_ii <= payload_size_i;
-		revision_ii <= revision_i;
-		mes_type_ii <= mes_type_i;
-		c_ii <= c_i;
-		valid_ii <= valid_i;
-		state_i <= state;
+		payload_size_iii <= payload_size_ii;
+		revision_ii 	<= revision_i;
+		revision_iii 	<= revision_ii;
+		mes_type_ii 	<= mes_type_i;
+		mes_type_iii 	<= mes_type_ii;
+		c_ii 				<= c_i;
+		c_iii 			<= c_ii;
+		valid_ii 		<= valid_i;
+		state_i 			<= state;
 	end if;
 end process;
 
-ready <= ready_i and ready_ii and ready_iii;
-ready2 <= ready_ii and ready_iii and ready_iiii;
+ready <= PWRITE_EN and write_en_i ;
 
 state_machine_proc: process(CLK)
 begin
@@ -143,7 +150,7 @@ begin
 		else
 			case state is
 				when IDLE=>
-					if ready_i and ready_ii and ready_iii and ready_iiii then
+					if PWRITE_EN and write_en_i and ready_i and ready_ii and ready_iii and ready_iiii then
 						state <= GET_H;
 					else
 						state <= IDLE;
@@ -164,11 +171,7 @@ begin
 							state <= GET_D;
 						end if;
 					else
-						if ready2 = '1' and ov_flag_i = '1' and bytes_cnt_i_n > payload_size_i_int then
-							state <= GET_H_D;
-						else
-							state <= SUSPEND;
-						end if;
+						state <= SUSPEND;
 					end if;
 				when GET_H_D =>
 					if ready then
@@ -178,10 +181,7 @@ begin
 					end if;
 				when GET_DD =>
 					if ready then
-						if ov_flag_i = '1' and (bytes_cnt_i_nn > payload_size_i_int) and (4 - payload_shift_ii < payload_size_i_mod) then
-								ov_flag_ii <= '1';
-								state <= SUSPEND;
-						elsif ov_flag_i = '1' and bytes_cnt_i_n > payload_size_i_int then
+						if ov_flag_i = '1' and bytes_cnt_i_n > payload_size_i_int then
 							state <= GET_H_D;
 						elsif ov_flag_i = '0' and  bytes_cnt_i_n = payload_size_i_int then
 							state <= GET_H;
@@ -189,11 +189,7 @@ begin
 							state <= GET_DD;
 						end if;
 					else
-						if ready2 = '1' and ov_flag_i = '1' and bytes_cnt_i_n > payload_size_i_int then
-							state <= GET_H_D;
-						else
-							state <= SUSPEND;
-						end if;
+						state <= SUSPEND;
 					end if;
 				when SUSPEND=>
 					case state_last is
@@ -223,7 +219,7 @@ begin
 							end if;
 						when GET_DD =>	
 							if ready then
-								if ov_flag_i = '1' and bytes_cnt_i_n > payload_size_i_int then
+								if ov_flag_i = '1' and bytes_cnt_i > payload_size_i_int then
 									state <= GET_H_D;
 								elsif ov_flag_i = '0' and bytes_cnt_i = payload_size_i_int then
 									state <= GET_H;
@@ -413,7 +409,9 @@ begin
 		if not(RESETn) then
 			valid_i <= '0';
 		else
-			if state = IDLE or state = SUSPEND or state = GET_H then
+			if ov_flag_i = '1' and (bytes_cnt_i_n > payload_size_i_int) and not(bytes_cnt_i > payload_size_i_int) and (4 - payload_shift_ii < payload_size_i_mod_last) then
+				valid_i <= '0';
+			elsif state = IDLE or state = SUSPEND or state = GET_H then
 				valid_i <= '0';
 			else
 				valid_i <= '1';
@@ -428,15 +426,11 @@ begin
 		if not(RESETn) then
 			ov_flag_i	<= '0';
 		else
-		--	if state_i = GET_H or state_i = GET_H_D then
 				if payload_shift_i  > 0 then
 					ov_flag_i <= '1';
 				else
 					ov_flag_i <= '0';
 				end if;
-		--	else
-		--		ov_flag_i <= ov_flag_i;
-		--	end if;
 		end if;
 	end if;
 end process;
@@ -448,13 +442,13 @@ begin
 			last_i <= '0';
 		else
 			if ov_flag_i then
-				if bytes_cnt_i + 4 > payload_size_i_int and state = GET_H_D then
+				if bytes_cnt_i_n >= payload_size_i_int and state = GET_DD  and (4 - payload_shift_ii < payload_size_i_mod_last)then
 					last_i <= '1';
 				else
 					last_i <= '0';
 				end if;
 			else
-				if bytes_cnt_i + 4 > payload_size_i_int then
+				if bytes_cnt_i  >= payload_size_i_int then
 					last_i <= '1';
 				else
 					last_i <= '0';
@@ -464,5 +458,25 @@ begin
 	end if;
 end process;
 
+
+keep_proc: process(CLK)
+begin
+	if rising_edge(CLK) then
+		if not(RESETn) then
+			keep_i <= (others=>'0');
+		else
+			if state = GET_H_D or state = GET_H or (bytes_cnt_i_n >= payload_size_i_int and state = GET_DD and (4 - payload_shift_ii < payload_size_i_mod_last)) then
+				case payload_size_i_mod is
+					when 1 => keep_i <= "1000";
+					when 2 => keep_i <= "1100";
+					when 3 => keep_i <= "1110";
+					when others => keep_i <= "1111";
+				end case;
+			else
+				keep_i <= "1111";
+			end if;
+		end if;
+	end if;
+end process;
 
 end rtl;

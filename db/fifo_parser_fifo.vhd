@@ -10,7 +10,7 @@ entity fifo_parser_fifo is
 				DATA_IN 		: in STD_LOGIC_VECTOR(BUS_SIZE-1 downto 0);
 				DATA_OUT 	: out STD_LOGIC_VECTOR(BUS_SIZE-1 downto 0);
 				PARSER_IN, PARSER_OUT : out STD_LOGIC_VECTOR(BUS_SIZE-1 downto 0);
-				BUFF_IN_NEXT_FULL, BUFF_OUT_NEXT_EMPTY, PVALIDD, PREADYD, PREADEN, PWRITEEN : out STD_LOGIC;
+				BUFF_IN_NEXT_FULL, BUFF_OUT_NEXT_EMPTY, PVALIDD, PREADYD, PWRITEEN : out STD_LOGIC;
 				READ_EN, WRITE_EN : in STD_LOGIC);
 			
 end fifo_parser_fifo;
@@ -21,7 +21,6 @@ architecture rtl of fifo_parser_fifo is
 	signal fifo_out_nfull_i, fifo_in_nempty_i, pready_i, pvalid_i, pwrite_en_i, pread_en_i : STD_LOGIC;
 	
 begin
-	--PREADEN <= pread_en_i;
 	PWRITEEN <= pwrite_en_i;
 	PVALIDD <= pvalid_i;
 	PREADYD <= pready_i;
