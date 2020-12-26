@@ -14,6 +14,8 @@ generic(	BUS_WIDTH 	: natural := 32;
 			IVALID 		: in STD_LOGIC;
 			IREADY		: out STD_LOGIC;
 			BUFF_EMPTY	: out STD_LOGIC;
+			KEEP_IN		: in STD_LOGIC_VECTOR(BUS_WIDTH/8 -1 downto 0);
+			KEEP_OUT		: out STD_LOGIC_VECTOR(BUS_WIDTH/8 -1 downto 0);
 			DATA_OUT 	: out STD_LOGIC_VECTOR(BUS_WIDTH-1 downto 0);
 			OREADY 		: in STD_LOGIC;
 			BIT_CNT_IN	: out INTEGER range 65535 downto 0;
@@ -44,7 +46,9 @@ begin
 							AXI_OREADY=>inv_fifo_next_full_i,
 							AXI_BIT_CNT_IN=>BIT_CNT_IN,
 							AXI_BIT_CNT_OUT=>BIT_CNT_OUT,
-							AXI_LAST_IN=>LAST_IN);
+							AXI_LAST_IN=>LAST_IN,
+							AXI_KEEP_IN=>KEEP_IN,
+							AXI_KEEP_OUT=>KEEP_OUT);
 
 	FIFO1: entity work.fifo(rtl)
 				generic map(FIFO_BUS_WIDTH=>BUS_WIDTH,

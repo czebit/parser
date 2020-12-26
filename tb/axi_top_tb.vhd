@@ -24,6 +24,7 @@ signal AXI_DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal AXI_BIT_CNT_IN, AXI_BIT_CNT_OUT : INTEGER;
 signal AXI_LAST_IN : STD_LOGIC := '0';
+signal AXI_KEEP_IN, AXI_KEEP_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
@@ -48,7 +49,9 @@ begin
 					 AXI_OREADY=>AXI_OREADY,
 					 AXI_BIT_CNT_IN=>AXI_BIT_CNT_IN,
 					 AXI_BIT_CNT_OUT=>AXI_BIT_CNT_OUT,
-					 AXI_LAST_IN=>AXI_LAST_IN);
+					 AXI_LAST_IN=>AXI_LAST_IN,
+					 AXI_KEEP_IN=>AXI_KEEP_IN,
+					 AXI_KEEP_OUT=>AXI_KEEP_OUT);
 
 ----------------------------------------------------------
 --Clock generation

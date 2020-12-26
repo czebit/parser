@@ -10,7 +10,11 @@ architecture sim of axi_master_tb is
 ----------------------------------------------------------
 -----------------Constant variables-----------------------
 
-constant cAXI_M_BUS_WIDTH 	: NATURAL := 8;
+constant cAXI_M_BUS_WIDTH 	: NATURAL := 32;
+constant keep1 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8)-1 downto 0) := "1000";
+constant keep2 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8)-1 downto 0) := "1100";
+constant keep3 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8)-1 downto 0) := "1110";
+constant keep4 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8)-1 downto 0) := "1111";
 ----------------------------------------------------------
 
 ----------------------------------------------------------
@@ -27,6 +31,8 @@ signal AXI_M_TDATA	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 signal AXI_M_TLAST	 : STD_LOGIC := '0';
 signal AXI_M_BIT_CNT	 : INTEGER range 65535 downto 0;
 signal AXI_M_LAST_IN	 : STD_LOGIC := '0';
+signal AXI_M_TKEEP	 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8) -1 downto 0);
+signal AXI_M_KEEP_IN	 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8) -1 downto 0);
 subtype 	word	is STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
@@ -51,7 +57,10 @@ begin
 					AXI_M_IVALID=>AXI_M_IVALID,
 					AXI_M_IREADY=>AXI_M_IREADY,
 					AXI_M_BIT_CNT=>AXI_M_BIT_CNT,
-					AXI_M_LAST_IN=>AXI_M_LAST_IN);
+					AXI_M_LAST_IN=>AXI_M_LAST_IN,
+					AXI_M_KEEP_IN=>AXI_M_KEEP_IN,
+					AXI_M_TKEEP=>AXI_M_TKEEP
+					);
 					
 					
 ----------------------------------------------------------
@@ -109,12 +118,12 @@ data_w(cnt_w) <= AXI_M_DATA_IN when AXI_M_IREADY and AXI_M_IVALID;
 			if not(AXI_M_ARESETn) then
 				AXI_M_IVALID <= '0';
 			else
-				if i = 21 then
+				if i = 9 then
 					i := 0;
 				else
 					i := i + 1;
 				end if;
-				if i >= 3 then
+				if i >= 2 then
 					AXI_M_IVALID <= '1';
 				else
 					AXI_M_IVALID <= '0';
@@ -123,6 +132,33 @@ data_w(cnt_w) <= AXI_M_DATA_IN when AXI_M_IREADY and AXI_M_IVALID;
 		end if;
 	end process;
 
+	keep_stim: process(AXI_M_ACLK)
+	variable i : INTEGER := 0;
+	begin
+		if rising_edge(AXI_M_ACLK) then
+			if not(AXI_M_ARESETn) then
+				AXI_M_KEEP_IN <= (others=>'0');
+				i := 0;
+			else
+				if i = 5 then
+					i := 0;
+				else
+					i := i + 1;
+				end if;
+				if i = 4 then
+					AXI_M_KEEP_IN <= keep1;
+				elsif i = 3 then
+					AXI_M_KEEP_IN <= keep2;
+				elsif i = 2 then
+					AXI_M_KEEP_IN <= keep3;
+				elsif i = 1 then
+					AXI_M_KEEP_IN <= keep4;
+				else
+					AXI_M_KEEP_IN <= keep1;
+				end if;
+			end if;
+		end if;
+	end process;
 
 ----------------------------------------------------------
 --read & tready stimulus
@@ -135,12 +171,12 @@ data_w(cnt_w) <= AXI_M_DATA_IN when AXI_M_IREADY and AXI_M_IVALID;
 				AXI_M_TREADY <= '0';
 				i := 0;
 			else
-				if i = 11 then
+				if i = 7 then
 					i := 0;
 				else
 					i := i + 1;
 				end if;
-				if i >= 4 then
+				if i >= 1 then
 					AXI_M_TREADY <= '1';
 				else
 					AXI_M_TREADY <= '0';

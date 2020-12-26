@@ -9,6 +9,8 @@ generic(	AXI_S_BUS_WIDTH : natural := 32);
 	port(	AXI_S_ARESETn	 : in STD_LOGIC;
 			AXI_S_ACLK		 : in STD_LOGIC;
 			AXI_S_TDATA		 : in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
+			AXI_S_TKEEP		 : in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
+			AXI_S_KEEP_OUT	 : out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
 			AXI_S_TVALID	 : in STD_LOGIC;
 			AXI_S_TLAST		 : in STD_LOGIC;
 			AXI_S_LAST_OUT	 : out STD_LOGIC;
@@ -27,6 +29,7 @@ type state_type is (IDLE, READY, GET_STREAM);
 signal state 	: state_type;
 signal bit_cnt : NATURAL range 65535 downto 0;
 signal tdata_i	: STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
+signal tkeep_i	: STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
 signal tready_i, tvalid_i, oready_i : STD_LOGIC;
 
 begin
@@ -38,6 +41,7 @@ AXI_S_LAST_OUT <= AXI_S_TLAST;
 input_register: process(AXI_S_ACLK)
 begin
 	if rising_edge(AXI_S_ACLK) then
+			tkeep_i <= AXI_S_TKEEP;
 			tdata_i <= AXI_S_TDATA;
 			oready_i <= AXI_S_OREADY;
 	end if;
@@ -137,12 +141,15 @@ begin
 			when GET_STREAM =>
 				AXI_S_OVALID <= '1';
 				AXI_S_DATA_OUT <= tdata_i;
+				AXI_S_KEEP_OUT <= tkeep_i;
 			when READY=>
 				AXI_S_OVALID <= '0';
 				AXI_S_DATA_OUT <= AXI_S_TDATA;
+				AXI_S_KEEP_OUT <= AXI_S_TKEEP;
 			when others=>
 				AXI_S_OVALID <= '0';
 				AXI_S_DATA_OUT <= AXI_S_TDATA;
+				AXI_S_KEEP_OUT <= AXI_S_TKEEP;
 			end case;
 		end if;
 	end if;

@@ -22,7 +22,7 @@ signal DATA_IN 		 		: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal BUFF_EMPTY, OREADY 		: STD_LOGIC;
 signal DATA_OUT 				: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
-
+signal KEEP_IN, KEEP_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
 signal BIT_CNT_IN, BIT_CNT_OUT : INTEGER;
 signal LAST_IN : STD_LOGIC := '0';
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
@@ -46,6 +46,8 @@ begin
 					 DATA_IN=>DATA_IN,
 					 IVALID=>IVALID,
 					 IREADY=>IREADY,
+					 KEEP_IN=>KEEP_IN,
+					 KEEP_OUT=>KEEP_OUT,
 					 BUFF_EMPTY=>BUFF_EMPTY,
 					 DATA_OUT=>DATA_OUT,
 					 OREADY=>OREADY,

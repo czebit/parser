@@ -35,6 +35,7 @@ signal cnt_w, cnt_r : INTEGER range 80 downto 0 := 0;
 signal vec_stream : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 
 signal AXI_M_IVALID, AXI_M_IREADY, AXI_M_LAST_IN, AXI_S_LAST_OUT, AXI_S_OVALID, AXI_S_OREADY : STD_LOGIC;
+signal AXI_M_TKEEP, AXI_M_KEEP_IN, AXI_S_KEEP_OUT, AXI_S_TKEEP : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
 
 ----------------------------------------------------------
 --File handling
@@ -64,7 +65,8 @@ begin
 	               BUFF_OUT_EMPTY=>BUFF_OUT_EMPTY,
 	               BUFF_OUT_OVERFLOW=>BUFF_OUT_OVERFLOW,
 	               AXI_BIT_CNT_IN=>AXI_BIT_CNT_IN,
-                  AXI_BIT_CNT_OUT=>AXI_BIT_CNT_OUT);
+                  AXI_BIT_CNT_OUT=>AXI_BIT_CNT_OUT
+						);
 						
 	AXI_ST_MASTER1: entity work.axi_st_master(rtl)
 		generic map(AXI_M_BUS_WIDTH=>cBUS_WIDTH)
@@ -78,7 +80,10 @@ begin
 		            AXI_M_TDATA=>AXI_M_TDATA,
 		            AXI_M_TLAST=>TLAST_IN,
 		            AXI_M_LAST_IN=>AXI_M_LAST_IN,
-		            AXI_M_BIT_CNT=>open);
+		            AXI_M_BIT_CNT=>open,
+						AXI_M_TKEEP=>AXI_M_TKEEP,
+						AXI_M_KEEP_IN=>AXI_M_KEEP_IN
+						);
 						
 	AXI_ST_SLAVE1: entity work.axi_st_slave(rtl)
 		generic map(AXI_S_BUS_WIDTH=>cBUS_WIDTH)					
@@ -92,7 +97,10 @@ begin
 						AXI_S_OVALID=>AXI_S_OVALID,
 						AXI_S_DATA_OUT=>AXI_S_DATA_OUT,
 						AXI_S_OREADY=>AXI_S_OREADY,
-						AXI_S_BIT_CNT=>open);
+						AXI_S_BIT_CNT=>open,
+						AXI_S_KEEP_OUT=>AXI_S_KEEP_OUT,
+						AXI_S_TKEEP=>AXI_S_TKEEP
+						);
 
 TDATA_IN <= AXI_M_TDATA;
 ----------------------------------------------------------

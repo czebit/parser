@@ -28,13 +28,12 @@ end parser_top;
 
 architecture structural of parser_top is
 
-signal axi_m_ivalid_i, axi_s_oready_i, fifo_out_full_i, fifo_in_empty_i, fifo_out_empty_i, axi_m_iready_i, parser_valid_i, parser_read_en_i, parser_write_en_i, fifo_next_empty_i, parser_ready_i, axi_s_ovalid_i, fifo_in_next_full_i, axi_out_valid_i : STD_LOGIC;
+signal axi_m_ivalid_i, axi_s_oready_i, fifo_out_full_i, fifo_in_empty_i, fifo_out_empty_i, axi_m_iready_i, parser_valid_i, parser_write_en_i, fifo_next_empty_i, parser_ready_i, axi_s_ovalid_i, fifo_in_next_full_i, axi_out_valid_i : STD_LOGIC;
 signal parser_header_data_out_i, axi_s_data_out_i, fifo_in_data_out_i, parser_data_out_i, fifo_out_data_out_i : STD_LOGIC_VECTOR(BUS_WIDTH-1 downto 0);
 
 begin
 
 	axi_s_oready_i <= not(fifo_in_next_full_i);
-	parser_read_en_i <= not(fifo_out_full_i);
 	parser_write_en_i <= not(fifo_in_empty_i);
 	axi_m_ivalid_i <= not(fifo_out_empty_i);
 	
@@ -42,6 +41,7 @@ begin
 		generic map(AXI_S_BUS_WIDTH=>BUS_WIDTH)					
 		port map(	AXI_S_ARESETn=>RESETn,
 						AXI_S_ACLK=>CLK,
+						AXI_S_TKEEP=>"1111",
 						AXI_S_TDATA=>TDATA_IN,
 						AXI_S_TVALID=>TVALID_IN,
 						AXI_S_TLAST=>TLAST_IN,
@@ -70,7 +70,6 @@ begin
 		            PDATA_IN=>fifo_in_data_out_i,
 		            PDATA_OUT=>parser_data_out_i,
 		            PDATA_H_OUT=>parser_header_data_out_i,
-		            PREAD_EN=>parser_read_en_i,
 		            PWRITE_EN=>parser_write_en_i,
 		            PREADY=>parser_ready_i,
 		            PVALID=>parser_valid_i,
@@ -106,6 +105,7 @@ begin
 		            AXI_M_TDATA=>TDATA_OUT,
 		            AXI_M_TLAST=>TLAST_OUT,
 		            AXI_M_LAST_IN=>'0',
-		            AXI_M_BIT_CNT=>AXI_BIT_CNT_OUT);
+		            AXI_M_BIT_CNT=>AXI_BIT_CNT_OUT,
+						AXI_M_KEEP_IN=>"1111" );
 
 end structural;

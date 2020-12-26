@@ -17,11 +17,8 @@ entity parser is
 				REVISION_NUM	: out STD_LOGIC_VECTOR(3 downto 0);
 				CONCATENATE		: out STD_LOGIC;
 				MESSAGE_TYPE	: out STD_LOGIC_VECTOR(7 downto 0);
-				PAYLOAD_SIZE	: out STD_LOGIC_VECTOR(15 downto 0);
-				state_d, state_d2 : out integer range 0 to 8;
-				data_i_d, data_ii_d, data_iii_d,data_iiii_d : out STD_LOGIC_VECTOR(31 downto 0);
-				ov  : out integer range 3 downto 0;
-				ov_f,ov2, ov_ff : out STD_LOGIC);
+				PAYLOAD_SIZE	: out STD_LOGIC_VECTOR(15 downto 0)
+				);
 				
 end parser;
 
@@ -66,42 +63,6 @@ MESSAGE_TYPE 	<= mes_type_i;
 PAYLOAD_SIZE 	<= payload_size_i;
 PVALID			<= valid_i;
 */
-
-data_i_d 		<= data_i;
-data_ii_d		<= data_ii;
-data_iii_d		<= data_iii;
-data_iiii_d		<= data_iiii;
-
-ov					<= payload_shift_i;
-ov_f				<= ov_flag_i;
-ov_ff				<= ov_flag_ii;
-
-state_proc: process(state)
-begin
-	case state is
-		when IDLE => state_d <= 0;
-		when GET_H => state_d <= 1;
-		when GET_D => state_d <= 2;
-		when GET_H_D => state_d <= 3;
-		when GET_DD => state_d <= 4;
-		when SUSPEND => state_d <= 5;
-	end case;
-end process;
-
-state_d2_proc: process(state_i, state)
-begin
-	case state_i is
-		when IDLE => state_d2 <= 0;
-		when GET_H => state_d2 <= 1;
-		when GET_D => state_d2 <= 2;
-		when GET_H_D => state_d2 <= 3;
-		when GET_DD => state_d2 <= 4;
-		when SUSPEND => state_d2 <= 5;
-	end case;
-	if state'event then
-	state_last <= state_i;
-	end if;
-end process;
 
 registers: process(CLK)
 begin
@@ -156,12 +117,15 @@ begin
 						state <= IDLE;
 					end if;
 				when GET_H =>
+					state_last <= GET_H;
 					if ready then
 						state <= GET_D;
 					else
 						state <= SUSPEND;
 					end if;
+					
 				when GET_D=>
+					state_last <= GET_D;
 					if ready then
 						if ov_flag_i = '1' and (bytes_cnt_i_n > payload_size_i_int) then
 							state <= GET_H_D;
@@ -173,13 +137,17 @@ begin
 					else
 						state <= SUSPEND;
 					end if;
+					
 				when GET_H_D =>
+					state_last <= GET_H_D;
 					if ready then
 						state <= GET_DD;
 					else
 						state <= SUSPEND;
 					end if;
+					
 				when GET_DD =>
+					state_last <= GET_DD;
 					if ready then
 						if ov_flag_i = '1' and bytes_cnt_i_n > payload_size_i_int then
 							state <= GET_H_D;
@@ -191,6 +159,7 @@ begin
 					else
 						state <= SUSPEND;
 					end if;
+					
 				when SUSPEND=>
 					case state_last is
 						when GET_H =>

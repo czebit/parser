@@ -14,24 +14,22 @@ architecture sim of parser_tb is
 ---------------Internal testbench signals-----------------
 signal CLK, RESETn	:  STD_LOGIC;
 
-signal data_iiii_d, data_iii_d, data_ii_d, data_i_d, PDATA_IN : STD_LOGIC_VECTOR(31 downto 0);
+signal PDATA_IN : STD_LOGIC_VECTOR(31 downto 0);
 signal PWRITE_EN, PREADY, PLAST, PVALID	: STD_LOGIC;
 signal PDATA_OUT, PDATA_H_OUT : STD_LOGIC_VECTOR(31 downto 0);
 signal BYTE_CNT : integer range 65535 downto 0;
 signal PAYLOAD_SIZE	: STD_LOGIC_VECTOR(15 downto 0);
 signal MESSAGE_TYPE	: STD_LOGIC_VECTOR(7 downto 0);
 signal PKEEP : STD_LOGIC_VECTOR(3 downto 0);
-signal ov : integer range 3 downto 0;
-signal state_d, state_d2 : integer range 0 to 8;
 signal REVISION_NUM	: STD_LOGIC_VECTOR(3 downto 0);
-signal CONCATENATE, ov_f, ov_ff	: STD_LOGIC;
+signal CONCATENATE : STD_LOGIC;
 
 
 ----------------------------------------------------------
 --File handling
 ----------------------------------------------------------
 	file test_file	: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen2.txt";
-	file out_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/testbench_output.txt";
+	--file out_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/testbench_output.txt";
 	
 begin
 ----------------------------------------------------------
@@ -52,10 +50,8 @@ begin
 					MESSAGE_TYPE=>MESSAGE_TYPE,
 					PAYLOAD_SIZE=>PAYLOAD_SIZE,
 					PVALID=>PVALID,
-					PKEEP=>PKEEP,
-					state_d=>state_d, state_d2=>state_d2,
-					data_i_d=>data_i_d, data_ii_d=>data_ii_d, data_iii_d=>data_iii_d, data_iiii_d=>data_iiii_d,
-					ov=>ov, ov_f=>ov_f, ov_ff=>ov_ff);
+					PKEEP=>PKEEP
+					);
 
 ----------------------------------------------------------
 --Clock generation

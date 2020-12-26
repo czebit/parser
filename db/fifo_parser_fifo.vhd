@@ -41,7 +41,7 @@ begin
 						FIFO_NEXT_EMPTY=>fifo_in_nempty_i,
 						FIFO_NEXT_FULL=>BUFF_IN_NEXT_FULL);
 		
-	parser1: entity work.parser(rtl)
+	parser_1: entity work.parser(rtl)
 		port map(	RESETn=>RESETn,
 		            CLK=>CLK,
 		            PDATA_IN=>fifo_data_out_i,
