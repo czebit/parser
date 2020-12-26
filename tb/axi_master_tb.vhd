@@ -59,7 +59,8 @@ begin
 					AXI_M_BIT_CNT=>AXI_M_BIT_CNT,
 					AXI_M_LAST_IN=>AXI_M_LAST_IN,
 					AXI_M_KEEP_IN=>AXI_M_KEEP_IN,
-					AXI_M_TKEEP=>AXI_M_TKEEP
+					AXI_M_TKEEP=>AXI_M_TKEEP,
+					AXI_M_TUSER_IN=>(others=>'1')
 					);
 					
 					

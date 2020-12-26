@@ -54,7 +54,8 @@ begin
 					AXI_S_OREADY=>AXI_S_OREADY,
 					AXI_S_BIT_CNT=>AXI_S_BIT_CNT,
 					AXI_S_TKEEP=>AXI_S_TKEEP,
-					AXI_S_KEEP_OUT=>AXI_S_KEEP_OUT
+					AXI_S_KEEP_OUT=>AXI_S_KEEP_OUT,
+					AXI_S_TUSER=>(others=>'1')
 					);
 
 

@@ -21,9 +21,9 @@ entity axi_st_master is
 				AXI_M_TLAST		: out STD_LOGIC;
 				AXI_M_TKEEP		: out STD_LOGIC_VECTOR(AXI_M_BUS_WIDTH/8 - 1 downto 0);
 				AXI_M_TUSER		: out STD_LOGIC_VECTOR(AXI_M_TUSER_WIDTH - 1 downto 0);
-
 				AXI_M_BIT_CNT	: out INTEGER range 65535 downto 0);
 end axi_st_master;
+
 
 architecture rtl of axi_st_master is
 

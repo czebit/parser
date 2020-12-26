@@ -5,7 +5,7 @@ use IEEE.numeric_std.all;
 entity parser_top is
 
 generic(	BUFF_DEPTH			: natural := 16;
-			AXI_TUSER_WIDTH 	: natural := 8;
+			AXI_TUSER_WIDTH 	: natural := 32;
 			BUS_WIDTH 			: natural := 32);
 
 	port(	CLK				: in  STD_LOGIC;
@@ -109,8 +109,8 @@ begin
 		            AXI_M_TDATA=>TDATA_OUT,					/* out	data output						*/
 		            AXI_M_TLAST=>TLAST_OUT,					/* out	last word of packet			*/
 		            AXI_M_BIT_CNT=>BIT_CNT_OUT,			/* out	send word counter				*/
-						AXI_M_TUSER=>TUSER_OUT					/* out	tuser data						*/
-						AXI_M_IREADY=>axi_m_iready_i,			/* out	axi ready to get data		*/
+						AXI_M_TUSER=>TUSER_OUT,					/* out	tuser data						*/
+						AXI_M_IREADY=>axi_m_iready_i			/* out	axi ready to get data		*/
 						);
 
 end structural;
