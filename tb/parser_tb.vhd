@@ -29,7 +29,6 @@ signal CONCATENATE : STD_LOGIC;
 --File handling
 ----------------------------------------------------------
 	file test_file	: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen2.txt";
-	--file out_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/testbench_output.txt";
 	
 begin
 ----------------------------------------------------------
@@ -122,7 +121,7 @@ begin
 			else
 				i := i + 1;
 			end if;
-			if i >= 3 then
+			if i >= 1 then
 				PREAD_EN <= '1';
 			else
 				PREAD_EN <= '0';
@@ -131,6 +130,7 @@ begin
 	end if;
 end process;
 */
+
 ----------------------------------------------------------
 --write stimulus
 ----------------------------------------------------------
@@ -143,13 +143,13 @@ begin
 			PWRITE_EN <= '0';
 			i := 0;
 		else
-			if i = 10 then
+			if i = 13 then
 				i := 0;
 			else
 				i := i + 1;
 			end if;
 			
-			if i >= 3 then
+			if i >= 1 then
 				PWRITE_EN <= '1';
 			else
 				PWRITE_EN <= '0';

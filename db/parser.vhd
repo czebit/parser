@@ -73,6 +73,20 @@ begin
 		data_ii <= data_i;
 		data_iii <= data_ii;
 		data_iiii <= data_iii;
+		
+		data_out_ii 	<= data_out_i;
+		data_h_out_ii 	<= data_h_out_i;
+		data_h_out_iii	<= data_h_out_ii;
+		payload_size_ii <= payload_size_i;
+		payload_size_iii <= payload_size_ii;
+		revision_ii 	<= revision_i;
+		revision_iii 	<= revision_ii;
+		mes_type_ii 	<= mes_type_i;
+		mes_type_iii 	<= mes_type_ii;
+		c_ii 				<= c_i;
+		c_iii 			<= c_ii;
+		valid_ii 		<= valid_i;
+		
 	else
 		data_0 <= data_0;
 		data_i <= data_i;
@@ -101,7 +115,7 @@ begin
 	end if;
 end process;
 
-ready <= PWRITE_EN and write_en_i ;
+ready <= PWRITE_EN and write_en_i;
 
 state_machine_proc: process(CLK)
 begin
@@ -383,7 +397,11 @@ begin
 			elsif state = IDLE or state = SUSPEND or state = GET_H then
 				valid_i <= '0';
 			else
-				valid_i <= '1';
+			--	if ready then
+					valid_i <= '1';
+			--	else
+			--		valid_i <= '0';
+			--	end if;
 			end if;
 		end if;
 	end if;

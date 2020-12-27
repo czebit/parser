@@ -105,13 +105,11 @@ set_global_assignment -name VHDL_FILE db/axi_st_slave.vhd
 set_global_assignment -name VHDL_FILE db/axi_st_master.vhd
 set_global_assignment -name VHDL_FILE db/parser.vhd
 set_global_assignment -name VHDL_FILE db/parser_top.vhd
-set_global_assignment -name VHDL_FILE db/fifo_parser_fifo.vhd
 set_global_assignment -name VHDL_FILE tb/parser_tb.vhd
 set_global_assignment -name VHDL_FILE tb/fifo_tb.vhd
 set_global_assignment -name VHDL_FILE tb/axi_master_tb.vhd
 set_global_assignment -name VHDL_FILE tb/axi_slave_tb.vhd
 set_global_assignment -name VHDL_FILE tb/parser_top_tb.vhd -hdl_version VHDL_2008
-set_global_assignment -name VHDL_FILE tb/fifo_parser_fifo_tb.vhd
 set_global_assignment -name SDC_FILE parser.sdc
 set_global_assignment -name EDA_TEST_BENCH_NAME fifo_parser_fifo_tb -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fifo_parser_fifo_tb

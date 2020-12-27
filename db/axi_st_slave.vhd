@@ -15,7 +15,7 @@ entity axi_st_slave is
 				AXI_S_TLAST		 : in STD_LOGIC;
 				AXI_S_OREADY 	 : in STD_LOGIC;
 				AXI_S_TUSER		 : in STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
-				AXI_S_TUSER_OUT : out STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
+				AXI_S_USER_OUT : out STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
 				AXI_S_KEEP_OUT	 : out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
 				AXI_S_LAST_OUT	 : out STD_LOGIC;
 				AXI_S_TREADY	 : out STD_LOGIC;
@@ -143,23 +143,23 @@ begin
 		else
 			case state is
 			when GET_STREAM =>
-				AXI_S_OVALID <= '1';
+				AXI_S_OVALID 		<= '1';
 				AXI_S_DATA_OUT 	<= tdata_i;
 				AXI_S_KEEP_OUT 	<= tkeep_i;
 				AXI_S_LAST_OUT		<= tlast_i;
-				AXI_S_TUSER_OUT	<= tuser_i;
+				AXI_S_USER_OUT		<= tuser_i;
 			when READY=>
-				AXI_S_OVALID <= '0';
+				AXI_S_OVALID 		<= '0';
 				AXI_S_DATA_OUT 	<= AXI_S_TDATA;
 				AXI_S_KEEP_OUT 	<= AXI_S_TKEEP;
 				AXI_S_LAST_OUT		<= AXI_S_TLAST;
-				AXI_S_TUSER_OUT	<= AXI_S_TUSER;
+				AXI_S_USER_OUT		<= AXI_S_TUSER;
 			when others=>
-				AXI_S_OVALID <= '0';
+				AXI_S_OVALID 		<= '0';
 				AXI_S_DATA_OUT 	<= AXI_S_TDATA;
 				AXI_S_KEEP_OUT 	<= AXI_S_TKEEP;
 				AXI_S_LAST_OUT		<= AXI_S_TLAST;
-				AXI_S_TUSER_OUT	<= AXI_S_TUSER;
+				AXI_S_USER_OUT		<= AXI_S_TUSER;
 			end case;
 		end if;
 	end if;
