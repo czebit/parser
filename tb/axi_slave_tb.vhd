@@ -23,11 +23,11 @@ signal AXI_S_TREADY	 : STD_LOGIC := '0';
 signal AXI_S_TLAST	 : STD_LOGIC := '0';
 signal AXI_S_OVALID	 : STD_LOGIC;
 signal AXI_S_TDATA	 : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others=>'0');
-signal AXI_S_DATA_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others=>'0');
+signal AXI_S_ODATA : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others=>'0');
 signal AXI_S_OREADY 	 : STD_LOGIC;
-signal AXI_S_BIT_CNT  : integer range 65535 downto 0;
+signal AXI_S_CNT  : integer range 65535 downto 0;
 signal AXI_S_TKEEP	 : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
-signal AXI_S_KEEP_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
+signal AXI_S_OKEEP : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
 
 subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
@@ -44,7 +44,7 @@ begin
 	generic map	(AXI_S_BUS_WIDTH=>cBUS_WIDTH)
 
 	port map		(AXI_S_TDATA=>AXI_S_TDATA,
-					AXI_S_DATA_OUT=>AXI_S_DATA_OUT,
+					AXI_S_ODATA=>AXI_S_ODATA,
 					AXI_S_TVALID=>AXI_S_TVALID,
 					AXI_S_TLAST=>AXI_S_TLAST,
 					AXI_S_TREADY=>AXI_S_TREADY,
@@ -52,9 +52,9 @@ begin
 					AXI_S_ACLK=>AXI_S_ACLK,
 					AXI_S_OVALID=>AXI_S_OVALID,
 					AXI_S_OREADY=>AXI_S_OREADY,
-					AXI_S_BIT_CNT=>AXI_S_BIT_CNT,
+					AXI_S_CNT=>AXI_S_CNT,
 					AXI_S_TKEEP=>AXI_S_TKEEP,
-					AXI_S_KEEP_OUT=>AXI_S_KEEP_OUT,
+					AXI_S_OKEEP=>AXI_S_OKEEP,
 					AXI_S_TUSER=>(others=>'1')
 					);
 
@@ -124,7 +124,7 @@ begin
 				else
 					i := i + 1;
 				end if;
-				if i > 1 then
+				if i > 3 then
 					AXI_S_TVALID <= '1';
 				else
 					AXI_S_TVALID <= '0';
@@ -141,7 +141,7 @@ begin
 	begin
 		if rising_edge(AXI_S_ACLK) then
 			if AXI_S_OVALID = '1' then
-				data_r(cnt_r) <= AXI_S_DATA_OUT;
+				data_r(cnt_r) <= AXI_S_ODATA;
 				if cnt_r > 1 then
 					assert(data_r(cnt_r-1) = data_w(cnt_r-1));
 				end if;

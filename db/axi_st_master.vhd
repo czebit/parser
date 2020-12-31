@@ -10,10 +10,10 @@ entity axi_st_master is
 	port(		AXI_M_ARESETn	: in STD_LOGIC;
 				AXI_M_ACLK		: in STD_LOGIC;
 				AXI_M_IVALID 	: in STD_LOGIC;
-				AXI_M_TUSER_IN	: in STD_LOGIC_VECTOR(AXI_M_TUSER_WIDTH - 1 downto 0);
-				AXI_M_KEEP_IN	: in STD_LOGIC_VECTOR(AXI_M_BUS_WIDTH/8 - 1 downto 0);
-				AXI_M_LAST_IN	: in STD_LOGIC;
-				AXI_M_DATA_IN	: in STD_LOGIC_VECTOR(AXI_M_BUS_WIDTH-1 downto 0);
+				AXI_M_IUSER		: in STD_LOGIC_VECTOR(AXI_M_TUSER_WIDTH - 1 downto 0);
+				AXI_M_IKEEP		: in STD_LOGIC_VECTOR(AXI_M_BUS_WIDTH/8 - 1 downto 0);
+				AXI_M_ILAST		: in STD_LOGIC;
+				AXI_M_IDATA		: in STD_LOGIC_VECTOR(AXI_M_BUS_WIDTH-1 downto 0);
 				AXI_M_TREADY	: in STD_LOGIC;
 				AXI_M_IREADY 	: out STD_LOGIC;
 				AXI_M_TVALID	: out STD_LOGIC;
@@ -21,7 +21,7 @@ entity axi_st_master is
 				AXI_M_TLAST		: out STD_LOGIC;
 				AXI_M_TKEEP		: out STD_LOGIC_VECTOR(AXI_M_BUS_WIDTH/8 - 1 downto 0);
 				AXI_M_TUSER		: out STD_LOGIC_VECTOR(AXI_M_TUSER_WIDTH - 1 downto 0);
-				AXI_M_BIT_CNT	: out INTEGER range 65535 downto 0);
+				AXI_M_CNT		: out INTEGER range 65535 downto 0);
 end axi_st_master;
 
 
@@ -29,18 +29,18 @@ architecture rtl of axi_st_master is
 
 type state_type is (IDLE, SEND_STREAM, SUSPEND);
 signal state : state_type;
-signal bit_cnt : NATURAL range 65535 downto 0;
+signal transfers_cnt : NATURAL range 65535 downto 0;
 signal tready_i : STD_LOGIC;
 
 begin
 
-AXI_M_TUSER		<= AXI_M_TUSER_IN;
+AXI_M_TUSER		<= AXI_M_IUSER;
 AXI_M_TVALID 	<= AXI_M_IVALID;
-AXI_M_TDATA 	<= AXI_M_DATA_IN;
+AXI_M_TDATA 	<= AXI_M_IDATA;
 AXI_M_IREADY 	<= AXI_M_TREADY and AXI_M_IVALID;
-AXI_M_TLAST		<= AXI_M_LAST_IN;
-AXI_M_BIT_CNT	<= bit_cnt;
-AXI_M_TKEEP		<= AXI_M_KEEP_IN;
+AXI_M_TLAST		<= AXI_M_ILAST;
+AXI_M_CNT		<= transfers_cnt;
+AXI_M_TKEEP		<= AXI_M_IKEEP;
 
 input_register: process(AXI_M_ACLK)
 begin
@@ -95,19 +95,19 @@ send_proc: process(AXI_M_ACLK)
 begin
 	if rising_edge(AXI_M_ACLK) then
 		if AXI_M_ARESETn = '0' then
-			bit_cnt <= 0;
+			transfers_cnt <= 0;
 		else
 			case state is
 				when IDLE =>
-					bit_cnt <= bit_cnt;
+					transfers_cnt <= transfers_cnt;
 				when SEND_STREAM =>
-					if bit_cnt = 65535 then
-						bit_cnt <= 0;
+					if transfers_cnt = 65535 then
+						transfers_cnt <= 0;
 					else
-						bit_cnt <= bit_cnt + 1;
+						transfers_cnt <= transfers_cnt + 1;
 					end if;
 				when SUSPEND =>
-					bit_cnt <= bit_cnt;
+					transfers_cnt <= transfers_cnt;
 				end case;
 		end if;
 	end if;

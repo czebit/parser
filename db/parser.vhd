@@ -5,10 +5,10 @@ use IEEE.numeric_std.all;
 entity parser is 
 		port(	RESETn			: in STD_LOGIC;
 				CLK				: in STD_LOGIC;
+				PWRITE_EN		: in STD_LOGIC;
 				PDATA_IN			: in STD_LOGIC_VECTOR(31 downto 0);
 				PDATA_OUT		: out STD_LOGIC_VECTOR(31 downto 0);
 				PDATA_H_OUT		: out STD_LOGIC_VECTOR(31 downto 0);
-				PWRITE_EN		: in STD_LOGIC;
 				PREADY			: out STD_LOGIC;
 				PVALID			: out STD_LOGIC;
 				PLAST				: out STD_LOGIC;
@@ -54,15 +54,6 @@ MESSAGE_TYPE 	<= mes_type_iii;
 PAYLOAD_SIZE 	<= payload_size_iii;
 PVALID			<= valid_ii;
 PKEEP 			<= keep_i;
-/*
-PDATA_H_OUT 	<= data_h_out_i;
-PDATA_OUT 		<= data_out_i;
-REVISION_NUM	<= revision_i;
-CONCATENATE 	<= c_i;
-MESSAGE_TYPE 	<= mes_type_i;
-PAYLOAD_SIZE 	<= payload_size_i;
-PVALID			<= valid_i;
-*/
 
 registers: process(CLK)
 begin
@@ -73,20 +64,6 @@ begin
 		data_ii <= data_i;
 		data_iii <= data_ii;
 		data_iiii <= data_iii;
-		
-		data_out_ii 	<= data_out_i;
-		data_h_out_ii 	<= data_h_out_i;
-		data_h_out_iii	<= data_h_out_ii;
-		payload_size_ii <= payload_size_i;
-		payload_size_iii <= payload_size_ii;
-		revision_ii 	<= revision_i;
-		revision_iii 	<= revision_ii;
-		mes_type_ii 	<= mes_type_i;
-		mes_type_iii 	<= mes_type_ii;
-		c_ii 				<= c_i;
-		c_iii 			<= c_ii;
-		valid_ii 		<= valid_i;
-		
 	else
 		data_0 <= data_0;
 		data_i <= data_i;
@@ -213,7 +190,7 @@ begin
 								state <= SUSPEND;
 							end if;
 						when others =>
-							null;
+							state <= SUSPEND;
 					end case;
 			end case;
 		end if;
@@ -397,11 +374,7 @@ begin
 			elsif state = IDLE or state = SUSPEND or state = GET_H then
 				valid_i <= '0';
 			else
-			--	if ready then
-					valid_i <= '1';
-			--	else
-			--		valid_i <= '0';
-			--	end if;
+				valid_i <= '1';
 			end if;
 		end if;
 	end if;
@@ -452,7 +425,7 @@ begin
 		if not(RESETn) then
 			keep_i <= (others=>'0');
 		else
-			if state = GET_H_D or state = GET_H or (bytes_cnt_i_n >= payload_size_i_int and state = GET_DD and (4 - payload_shift_ii < payload_size_i_mod_last)) then
+			if ((state_i = GET_D or state_i = GET_DD) and state = SUSPEND and bytes_cnt_i > payload_size_i_int) or state = GET_H_D or state = GET_H or (bytes_cnt_i_n >= payload_size_i_int and (state = GET_DD or state = SUSPEND) and (4 - payload_shift_ii < payload_size_i_mod_last)) or (state = SUSPEND and bytes_cnt_i = payload_size_i_int) then
 				case payload_size_i_mod is
 					when 1 => keep_i <= "1000";
 					when 2 => keep_i <= "1100";

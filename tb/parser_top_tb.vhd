@@ -20,10 +20,10 @@ constant cAXI_TUSER_WIDTH 	: NATURAL := 32;
 ---------------Internal testbench signals-----------------
 signal CLK, RESETn	:  STD_LOGIC;
 
-signal AXI_M_TDATA, AXI_M_DATA_IN : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
-signal AXI_M_TVALID, AXI_M_IVALID, AXI_M_LAST_IN, AXI_M_TLAST, AXI_M_TREADY, AXI_M_IREADY : STD_LOGIC;
-signal AXI_M_KEEP_IN, AXI_M_TKEEP : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
-signal AXI_M_TUSER_IN : STD_LOGIC_VECTOR(cAXI_TUSER_WIDTH -1 downto 0);
+signal AXI_M_TDATA, AXI_M_IDATA : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
+signal AXI_M_TVALID, AXI_M_IVALID, AXI_M_ILAST, AXI_M_TLAST, AXI_M_TREADY, AXI_M_IREADY : STD_LOGIC;
+signal AXI_M_IKEEP, AXI_M_TKEEP : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
+signal AXI_M_IUSER : STD_LOGIC_VECTOR(cAXI_TUSER_WIDTH -1 downto 0);
 
 signal TDATA_S, TDATA_M : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 signal TVALID_S, TVALID_M, TREADY_S, TREADY_M, TLAST_S, TLAST_M : STD_LOGIC;
@@ -34,19 +34,19 @@ signal BIT_CNT_M, BIT_CNT_S : INTEGER;
 signal TKEEP_S, TKEEP_M : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
 signal TUSER_M : STD_LOGIC_VECTOR(cAXI_TUSER_WIDTH -1 downto 0);
 
-signal AXI_S_TDATA, AXI_S_DATA_OUT : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
-signal AXI_S_TVALID, AXI_S_OVALID, AXI_S_LAST_OUT, AXI_S_TLAST, AXI_S_TREADY, AXI_S_OREADY : STD_LOGIC;
-signal AXI_S_KEEP_OUT, AXI_S_TKEEP : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
-signal AXI_S_USER_OUT, AXI_S_TUSER : STD_LOGIC_VECTOR(cAXI_TUSER_WIDTH -1 downto 0);
+signal AXI_S_TDATA, AXI_S_ODATA : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
+signal AXI_S_TVALID, AXI_S_OVALID, AXI_S_OLAST, AXI_S_TLAST, AXI_S_TREADY, AXI_S_OREADY : STD_LOGIC;
+signal AXI_S_OKEEP, AXI_S_TKEEP : STD_LOGIC_VECTOR(cBUS_WIDTH/8 -1 downto 0);
+signal AXI_S_OUSER, AXI_S_TUSER : STD_LOGIC_VECTOR(cAXI_TUSER_WIDTH -1 downto 0);
 
-signal AXI_M_BIT_CNT : INTEGER;
-signal AXI_S_BIT_CNT : INTEGER;
+signal AXI_M_CNT : INTEGER;
+signal AXI_S_CNT : INTEGER;
 
-signal fifo_out_d, fifo_in_d : STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
+
 ----------------------------------------------------------
 --File handling
 ----------------------------------------------------------
-	file test_file		: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen2.txt";
+	file test_file		: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen3.txt";
 	file payload_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/tb_output/payload_output.txt";
 	file header_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/tb_output/header_output.txt";
 	file keep_file		: text open write_mode is "/X/intelFPGA_lite/20.1/parser/tb_output/keep_output.txt";
@@ -75,8 +75,7 @@ begin
 						BIT_CNT_M		=>	BIT_CNT_M,
 						TKEEP_S			=>	TKEEP_S,
 						TKEEP_M			=>	TKEEP_M,
-						TUSER_M			=>	TUSER_M,
-						fifo_in_d=>fifo_in_d, fifo_out_d=>fifo_out_d
+						TUSER_M			=>	TUSER_M
 						);
 						
 	AXI_ST_MASTER1: entity work.axi_st_master(rtl)
@@ -86,16 +85,16 @@ begin
 						AXI_M_ACLK			=>	CLK,
 						AXI_M_IVALID		=>	AXI_M_IVALID,
 						AXI_M_IREADY		=>	AXI_M_IREADY,
-						AXI_M_DATA_IN		=>	AXI_M_DATA_IN,
+						AXI_M_IDATA			=>	AXI_M_IDATA,
 						AXI_M_TREADY		=>	AXI_M_TREADY,
 						AXI_M_TVALID		=>	AXI_M_TVALID,
 						AXI_M_TDATA			=>	AXI_M_TDATA,
 						AXI_M_TLAST			=>	AXI_M_TLAST,
-						AXI_M_LAST_IN		=>	AXI_M_LAST_IN,
-						AXI_M_BIT_CNT		=>	AXI_M_BIT_CNT,
+						AXI_M_ILAST			=>	AXI_M_ILAST,
+						AXI_M_CNT			=>	AXI_M_CNT,
 						AXI_M_TKEEP			=>	AXI_M_TKEEP,
-						AXI_M_KEEP_IN		=>	AXI_M_KEEP_IN,
-						AXI_M_TUSER_IN		=>	AXI_M_TUSER_IN,
+						AXI_M_IKEEP			=>	AXI_M_IKEEP,
+						AXI_M_IUSER		=>	AXI_M_IUSER,
 						AXI_M_TUSER			=>	open
 						);
 						
@@ -107,28 +106,27 @@ begin
 						AXI_S_TDATA			=>	AXI_S_TDATA,
 						AXI_S_TVALID		=>	AXI_S_TVALID,
 						AXI_S_TLAST			=>	AXI_S_TLAST,
-						AXI_S_LAST_OUT		=>	AXI_S_LAST_OUT,
+						AXI_S_OLAST			=>	AXI_S_OLAST,
 						AXI_S_TREADY		=>	AXI_S_TREADY,
 						AXI_S_OVALID		=>	AXI_S_OVALID,
-						AXI_S_DATA_OUT		=>	AXI_S_DATA_OUT,
+						AXI_S_ODATA			=>	AXI_S_ODATA,
 						AXI_S_OREADY		=>	AXI_S_OREADY,
-						AXI_S_BIT_CNT		=>	AXI_S_BIT_CNT,
-						AXI_S_KEEP_OUT		=>	AXI_S_KEEP_OUT,
+						AXI_S_CNT			=>	AXI_S_CNT,
+						AXI_S_OKEEP			=>	AXI_S_OKEEP,
 						AXI_S_TKEEP			=>	AXI_S_TKEEP,
 						AXI_S_TUSER			=>	AXI_S_TUSER,
-						AXI_S_USER_OUT	=>	AXI_S_USER_OUT
+						AXI_S_OUSER			=>	AXI_S_OUSER
 						);
 				
-	AXI_M_IVALID	<=  '1';	
 	AXI_M_TREADY	<= TREADY_S;
 	TVALID_S			<= AXI_M_TVALID;
 	TDATA_S			<= AXI_M_TDATA;
 	TLAST_S			<= AXI_M_TLAST;
 	TKEEP_S			<= AXI_M_TKEEP;
 	
-	AXI_M_LAST_IN	<= '0';
-	AXI_M_KEEP_IN	<= (others=>'1');
-	AXI_M_TUSER_IN	<= (others=>'0');
+	AXI_M_ILAST	<= '0';
+	AXI_M_IKEEP	<= (others=>'1');
+	AXI_M_IUSER	<= (others=>'0');
 	
 	AXI_S_TDATA			<= TDATA_M;
 	AXI_S_TVALID		<= TVALID_M;
@@ -168,18 +166,18 @@ variable sulv : bit_vector(31 downto 0);
 begin
 	if rising_edge(CLK) then
 		if not(RESETn) then
-			AXI_M_DATA_IN <= (others => '0');
+			AXI_M_IDATA <= (others => '0');
 		else
 			if AXI_M_IREADY and AXI_M_IVALID then
 				if not(endfile(test_file)) then
 					readline(test_file, rline);
 					hread(rline, sulv);
-					AXI_M_DATA_IN <= To_StdLogicVector(sulv);
+					AXI_M_IDATA <= To_StdLogicVector(sulv);
 				else
-					AXI_M_DATA_IN <= AXI_M_DATA_IN;
+					AXI_M_IDATA <= AXI_M_IDATA;
 				end if;
 			else
-				AXI_M_DATA_IN <= AXI_M_DATA_IN;
+				AXI_M_IDATA <= AXI_M_IDATA;
 			end if;
 		end if;
 	end if;
@@ -194,10 +192,10 @@ variable h_line : line;
 variable k_line : line;
 begin
 	if rising_edge(CLK) then
-		if AXI_S_OREADY and AXI_S_OVALID then
-			hwrite(p_line, To_BitVector(AXI_S_DATA_OUT));
-			hwrite(h_line, To_BitVector(AXI_S_USER_OUT));
-			hwrite(k_line, To_BitVector(AXI_S_KEEP_OUT));
+		if AXI_S_OVALID then
+			hwrite(p_line, To_BitVector(AXI_S_ODATA));
+			hwrite(h_line, To_BitVector(AXI_S_OUSER));
+			hwrite(k_line, To_BitVector(AXI_S_OKEEP));
 			writeline(payload_file, p_line);
 			writeline(keep_file, 	k_line);
 			writeline(header_file, 	h_line);
@@ -217,7 +215,7 @@ begin
 			AXI_S_OREADY <= '0';
 			i := 0;
 		else
-			if i = 14 then
+			if i = 27 then
 				i := 0;
 			else
 				i := i + 1;
@@ -231,7 +229,8 @@ begin
 	end if;
 end process;
 
-/*
+--AXI_S_OREADY <= '1';
+
 ----------------------------------------------------------
 --write stimulus
 ----------------------------------------------------------
@@ -241,24 +240,26 @@ variable i : INTEGER := 0;
 begin
 	if rising_edge(CLK) then
 		if RESETn = '0' then
-			PWRITE_EN <= '0';
+			AXI_M_IVALID <= '0';
 			i := 0;
 		else
-			if i = 13 then
+			if i = 20 then
 				i := 0;
 			else
 				i := i + 1;
 			end if;
 			
-			if i >= 1 then
-				PWRITE_EN <= '1';
+			if i >= 3 then
+				AXI_M_IVALID <= '1';
 			else
-				PWRITE_EN <= '0';
+				AXI_M_IVALID <= '0';
 			end if;
 		end if;
 	end if;
 end process;
-*/
+
+
+--	AXI_M_IVALID	<=  '1';	
 
 end sim;
 	

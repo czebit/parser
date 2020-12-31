@@ -25,11 +25,8 @@ architecture sim of fifo_tb is
 	signal FIFO_READ_EN	: STD_LOGIC;
 	signal FIFO_DATA_OUT	: STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0) := (others => '0');
 	
-	signal FIFO_EMPTY		: STD_LOGIC;
-	signal FIFO_NEXT_FULL	: STD_LOGIC;
-	signal FIFO_NEXT_EMPTY	: STD_LOGIC;
-	
-	signal tail_d, head_d, elem_cnt_d : integer;
+	signal FIFO_EMPTY, FIFO_FULL				: STD_LOGIC;
+	signal FIFO_NEXT_EMPTY, FIFO_NEXT_FULL	: STD_LOGIC;
 	
 	subtype 	word	is STD_LOGIC_VECTOR(cBUS_WIDTH-1 downto 0);
 	type 		mem	is array(100 downto 0) of word;

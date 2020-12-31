@@ -61,7 +61,7 @@ set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
-set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH parser_top_tb -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH parser_tb -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_NAME parser_tb -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id parser_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME parser_tb -section_id parser_tb
@@ -100,7 +100,12 @@ set_global_assignment -name EDA_TEST_BENCH_NAME parser_top_tb -section_id eda_si
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id parser_top_tb
 set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "500 ns" -section_id parser_top_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME parser_top_tb -section_id parser_top_tb
+set_global_assignment -name EDA_TEST_BENCH_NAME fifo_parser_fifo_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fifo_parser_fifo_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "300 ns" -section_id fifo_parser_fifo_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME fifo_parser_fifo_tb -section_id fifo_parser_fifo_tb
 set_global_assignment -name VHDL_FILE db/fifo.vhd
+set_global_assignment -name VHDL_FILE db/fifo_out.vhd
 set_global_assignment -name VHDL_FILE db/axi_st_slave.vhd
 set_global_assignment -name VHDL_FILE db/axi_st_master.vhd
 set_global_assignment -name VHDL_FILE db/parser.vhd
@@ -111,10 +116,9 @@ set_global_assignment -name VHDL_FILE tb/axi_master_tb.vhd
 set_global_assignment -name VHDL_FILE tb/axi_slave_tb.vhd
 set_global_assignment -name VHDL_FILE tb/parser_top_tb.vhd -hdl_version VHDL_2008
 set_global_assignment -name SDC_FILE parser.sdc
-set_global_assignment -name EDA_TEST_BENCH_NAME fifo_parser_fifo_tb -section_id eda_simulation
-set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fifo_parser_fifo_tb
-set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "300 ns" -section_id fifo_parser_fifo_tb
-set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME fifo_parser_fifo_tb -section_id fifo_parser_fifo_tb
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/parser_tb.vhd -section_id parser_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_master_tb.vhd -section_id axi_master_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_slave_tb.vhd -section_id axi_slave_tb
@@ -123,7 +127,4 @@ set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_top_tb.vhd -section_id ax
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/axi_fifo_top_tb.vhd -section_id axi_fifo_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/parser_top_tb.vhd -section_id parser_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE tb/fifo_parser_fifo_tb.vhd -section_id fifo_parser_fifo_tb
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -28,7 +28,10 @@ signal CONCATENATE : STD_LOGIC;
 ----------------------------------------------------------
 --File handling
 ----------------------------------------------------------
-	file test_file	: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen2.txt";
+	file test_file		: text open read_mode is "/X/intelFPGA_lite/20.1/parser/ecpri_frames_gen3.txt";
+	file payload_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/tb_output/payload_output.txt";
+	file header_file	: text open write_mode is "/X/intelFPGA_lite/20.1/parser/tb_output/header_output.txt";
+	file keep_file		: text open write_mode is "/X/intelFPGA_lite/20.1/parser/tb_output/keep_output.txt";
 	
 begin
 ----------------------------------------------------------
@@ -103,33 +106,6 @@ begin
 		end if;
 	end if;
 end process;
-			
-----------------------------------------------------------
---read stimulus
-----------------------------------------------------------	
-/*
-read_proc: process(CLK)
-variable i : INTEGER := 0;
-begin
-	if rising_edge(CLK) then
-		if RESETn = '0' then
-			PREAD_EN <= '0';
-			i := 0;
-		else
-			if i = 14 then
-				i := 0;
-			else
-				i := i + 1;
-			end if;
-			if i >= 1 then
-				PREAD_EN <= '1';
-			else
-				PREAD_EN <= '0';
-			end if;
-		end if;
-	end if;
-end process;
-*/
 
 ----------------------------------------------------------
 --write stimulus
@@ -159,6 +135,23 @@ begin
 end process;
 
 --PREAD_EN <= '1';	
+
+write_payload_file: process(CLK)
+variable p_line : line;
+variable h_line : line;
+variable k_line : line;
+begin
+	if rising_edge(CLK) then
+		if PVALID then
+			hwrite(p_line, To_BitVector(PDATA_OUT));
+			hwrite(h_line, To_BitVector(PDATA_H_OUT));
+			hwrite(k_line, To_BitVector(PKEEP));
+			writeline(payload_file, p_line);
+			writeline(keep_file, 	k_line);
+			writeline(header_file, 	h_line);
+		end if;
+	end if;
+end process;
 
 
 end sim;

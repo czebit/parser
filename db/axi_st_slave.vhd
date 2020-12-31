@@ -5,23 +5,23 @@ use IEEE.numeric_std.all;
 entity axi_st_slave is 
 
 	generic(	AXI_S_BUS_WIDTH 	: natural := 32;
-				AXI_S_TUSER_WIDTH : natural :=8);
+				AXI_S_TUSER_WIDTH : natural := 8);
 		
-	port(		AXI_S_ARESETn	 : in STD_LOGIC;
-				AXI_S_ACLK		 : in STD_LOGIC;
-				AXI_S_TDATA		 : in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
-				AXI_S_TKEEP		 : in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
-				AXI_S_TVALID	 : in STD_LOGIC;
-				AXI_S_TLAST		 : in STD_LOGIC;
-				AXI_S_OREADY 	 : in STD_LOGIC;
-				AXI_S_TUSER		 : in STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
-				AXI_S_USER_OUT : out STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
-				AXI_S_KEEP_OUT	 : out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
-				AXI_S_LAST_OUT	 : out STD_LOGIC;
-				AXI_S_TREADY	 : out STD_LOGIC;
-				AXI_S_OVALID	 : out STD_LOGIC;
-				AXI_S_DATA_OUT	 : out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
-				AXI_S_BIT_CNT 	 : out integer range 65535 downto 0);	
+	port(		AXI_S_ARESETn	: in STD_LOGIC;
+				AXI_S_ACLK		: in STD_LOGIC;
+				AXI_S_TDATA		: in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
+				AXI_S_TKEEP		: in STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
+				AXI_S_TVALID	: in STD_LOGIC;
+				AXI_S_TLAST		: in STD_LOGIC;
+				AXI_S_OREADY 	: in STD_LOGIC;
+				AXI_S_TUSER		: in STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
+				AXI_S_OUSER 	: out STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
+				AXI_S_OKEEP		: out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH/8 -1 downto 0);
+				AXI_S_OLAST		: out STD_LOGIC;
+				AXI_S_TREADY	: out STD_LOGIC;
+				AXI_S_OVALID	: out STD_LOGIC;
+				AXI_S_ODATA		: out STD_LOGIC_VECTOR(AXI_S_BUS_WIDTH-1 downto 0);
+				AXI_S_CNT 		: out integer range 65535 downto 0);	
 end axi_st_slave;
 
 
@@ -37,7 +37,7 @@ signal tuser_i	: STD_LOGIC_VECTOR(AXI_S_TUSER_WIDTH - 1 downto 0);
 begin
 
 AXI_S_TREADY <= tready_i;
-AXI_S_BIT_CNT <= bit_cnt;
+AXI_S_CNT <= bit_cnt;
  
 
 input_register: process(AXI_S_ACLK)
@@ -138,32 +138,33 @@ dvalid_proc: process(AXI_S_ACLK)
 begin
 	if rising_edge(AXI_S_ACLK) then
 		if AXI_S_ARESETn = '0' then
-			AXI_S_DATA_OUT <= (others=>'0');
+			AXI_S_ODATA <= (others=>'0');
 			AXI_S_OVALID <= '0';
 		else
 			case state is
 			when GET_STREAM =>
 				AXI_S_OVALID 		<= '1';
-				AXI_S_DATA_OUT 	<= tdata_i;
-				AXI_S_KEEP_OUT 	<= tkeep_i;
-				AXI_S_LAST_OUT		<= tlast_i;
-				AXI_S_USER_OUT		<= tuser_i;
+				AXI_S_ODATA 	<= tdata_i;
+				AXI_S_OKEEP 	<= tkeep_i;
+				AXI_S_OLAST		<= tlast_i;
+				AXI_S_OUSER		<= tuser_i;
 			when READY=>
 				AXI_S_OVALID 		<= '0';
-				AXI_S_DATA_OUT 	<= AXI_S_TDATA;
-				AXI_S_KEEP_OUT 	<= AXI_S_TKEEP;
-				AXI_S_LAST_OUT		<= AXI_S_TLAST;
-				AXI_S_USER_OUT		<= AXI_S_TUSER;
+				AXI_S_ODATA 	<= AXI_S_TDATA;
+				AXI_S_OKEEP 	<= AXI_S_TKEEP;
+				AXI_S_OLAST		<= AXI_S_TLAST;
+				AXI_S_OUSER		<= AXI_S_TUSER;
 			when others=>
 				AXI_S_OVALID 		<= '0';
-				AXI_S_DATA_OUT 	<= AXI_S_TDATA;
-				AXI_S_KEEP_OUT 	<= AXI_S_TKEEP;
-				AXI_S_LAST_OUT		<= AXI_S_TLAST;
-				AXI_S_USER_OUT		<= AXI_S_TUSER;
+				AXI_S_ODATA 	<= AXI_S_TDATA;
+				AXI_S_OKEEP 	<= AXI_S_TKEEP;
+				AXI_S_OLAST		<= AXI_S_TLAST;
+				AXI_S_OUSER		<= AXI_S_TUSER;
 			end case;
 		end if;
 	end if;
 end process;
+
 
 end rtl;
 

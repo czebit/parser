@@ -24,15 +24,15 @@ signal AXI_M_ARESETn	 : STD_LOGIC := '0';
 signal AXI_M_ACLK		 : STD_LOGIC := '0';
 signal AXI_M_IVALID 	 : STD_LOGIC := '0';
 signal AXI_M_IREADY   : STD_LOGIC := '0';
-signal AXI_M_DATA_IN	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0) := (others=>'0');
+signal AXI_M_IDATA	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0) := (others=>'0');
 signal AXI_M_TVALID	 : STD_LOGIC := '0';
 signal AXI_M_TREADY	 : STD_LOGIC := '0';
 signal AXI_M_TDATA	 : STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 signal AXI_M_TLAST	 : STD_LOGIC := '0';
-signal AXI_M_BIT_CNT	 : INTEGER range 65535 downto 0;
-signal AXI_M_LAST_IN	 : STD_LOGIC := '0';
+signal AXI_M_CNT	 	 : INTEGER range 65535 downto 0;
+signal AXI_M_ILAST	 : STD_LOGIC := '0';
 signal AXI_M_TKEEP	 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8) -1 downto 0);
-signal AXI_M_KEEP_IN	 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8) -1 downto 0);
+signal AXI_M_IKEEP	 : STD_LOGIC_VECTOR((cAXI_M_BUS_WIDTH/8) -1 downto 0);
 subtype 	word	is STD_LOGIC_VECTOR(cAXI_M_BUS_WIDTH-1 downto 0);
 type 		mem	is array(80 downto 0) of word;
 
@@ -53,14 +53,14 @@ begin
 					AXI_M_TREADY=>AXI_M_TREADY,
 					AXI_M_ARESETn=>AXI_M_ARESETn,
 					AXI_M_ACLK=>AXI_M_ACLK,
-					AXI_M_DATA_IN=>AXI_M_DATA_IN,
+					AXI_M_IDATA=>AXI_M_IDATA,
 					AXI_M_IVALID=>AXI_M_IVALID,
 					AXI_M_IREADY=>AXI_M_IREADY,
-					AXI_M_BIT_CNT=>AXI_M_BIT_CNT,
-					AXI_M_LAST_IN=>AXI_M_LAST_IN,
-					AXI_M_KEEP_IN=>AXI_M_KEEP_IN,
+					AXI_M_CNT=>AXI_M_CNT,
+					AXI_M_ILAST=>AXI_M_ILAST,
+					AXI_M_IKEEP=>AXI_M_IKEEP,
 					AXI_M_TKEEP=>AXI_M_TKEEP,
-					AXI_M_TUSER_IN=>(others=>'1')
+					AXI_M_IUSER=>(others=>'1')
 					);
 					
 					
@@ -94,11 +94,11 @@ begin
 	data_proc: process(AXI_M_ACLK)
 	begin
 		if rising_edge(AXI_M_ACLK) then
-			AXI_M_DATA_IN <= STD_LOGIC_VECTOR(UNSIGNED(AXI_M_DATA_IN) + 1);
+			AXI_M_IDATA <= STD_LOGIC_VECTOR(UNSIGNED(AXI_M_IDATA) + 1);
 		end if;
 	end process;
 	
-	AXI_M_DATA_IN_proc: process(AXI_M_ACLK)
+	AXI_M_IDATA_proc: process(AXI_M_ACLK)
 	begin
 		if rising_edge(AXI_M_ACLK) then
 			if AXI_M_IREADY = '1' and AXI_M_IVALID = '1' then
@@ -107,7 +107,7 @@ begin
 		end if;
 	end process;
 
-data_w(cnt_w) <= AXI_M_DATA_IN when AXI_M_IREADY and AXI_M_IVALID;
+data_w(cnt_w) <= AXI_M_IDATA when AXI_M_IREADY and AXI_M_IVALID;
 
 ----------------------------------------------------------
 --AXI_M_IVALID stimulus
@@ -138,7 +138,7 @@ data_w(cnt_w) <= AXI_M_DATA_IN when AXI_M_IREADY and AXI_M_IVALID;
 	begin
 		if rising_edge(AXI_M_ACLK) then
 			if not(AXI_M_ARESETn) then
-				AXI_M_KEEP_IN <= (others=>'0');
+				AXI_M_IKEEP <= (others=>'0');
 				i := 0;
 			else
 				if i = 5 then
@@ -147,15 +147,15 @@ data_w(cnt_w) <= AXI_M_DATA_IN when AXI_M_IREADY and AXI_M_IVALID;
 					i := i + 1;
 				end if;
 				if i = 4 then
-					AXI_M_KEEP_IN <= keep1;
+					AXI_M_IKEEP <= keep1;
 				elsif i = 3 then
-					AXI_M_KEEP_IN <= keep2;
+					AXI_M_IKEEP <= keep2;
 				elsif i = 2 then
-					AXI_M_KEEP_IN <= keep3;
+					AXI_M_IKEEP <= keep3;
 				elsif i = 1 then
-					AXI_M_KEEP_IN <= keep4;
+					AXI_M_IKEEP <= keep4;
 				else
-					AXI_M_KEEP_IN <= keep1;
+					AXI_M_IKEEP <= keep1;
 				end if;
 			end if;
 		end if;
